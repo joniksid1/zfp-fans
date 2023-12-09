@@ -1,3 +1,13 @@
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .page {
   font-family: 'Inter', 'Arial', 'Helvetica', sans-serif;
   -moz-osx-font-smoothing: grayscale;
@@ -10,6 +20,8 @@
   color: #504f4f;
   position: relative;
   min-width: 320px;
+  display: flex;
+  justify-content: center;
 }
 
 .root {
@@ -22,10 +34,11 @@
 
 .header {
   display: flex;
+  justify-content: center;
 }
 
 .header__logo {
-  width: 150px;
+  width: 200px;
 }
 
 .main {
@@ -33,12 +46,78 @@
   min-height: 500px;
 }
 
-.calculator {
- display: flex;
+.calculator__title {
+  font-size: 34px;
+  font-weight: 600;
+  margin: 0;
 }
 
-.calculator__title {
+.calculator__wrapper {
+  margin-top: 30px;
+  display: flex;
+}
+
+.calculator__chart {
+  min-width: 1000px;
+  min-height: 500px;
+}
+
+.calculator__form {
+  max-width: 200px;
+  width: 100%;
   margin: 0;
+  padding: 50px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+}
+
+.calculator__label {
+  width: 100%;
+  margin: 20px 0 0 0;
+}
+
+.calculator__input {
+  width: 100%;
+  padding: 5px 0 0 0;
+  margin: 10px 0 0 0;
+  font-size: 16px;
+  line-height: .7;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, .2);
+  background: transparent;
+}
+
+.calculator__input:focus {
+  border: 0;
+  outline: 2px solid rgba(0, 0, 0, .2);
+}
+
+.calculator__button {
+  cursor: pointer;
+  padding: 0;
+  margin: 11px 0 37px 0;
+  width: 150px;
+  min-height: 30px;
+  background-color: #504f4f;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  transition: opacity .3s ease-in-out;
+}
+
+.calculator__button:hover {
+  opacity: .8;
+}
+
+.calculator__button:disabled {
+  background: transparent;
+  color: rgba(0, 0, 0, .2);
+  border: 1px solid rgba(0, 0, 0, .2);
 }
 
 .footer {
@@ -46,5 +125,6 @@
 }
 
 .footer__copyright {
-  margin: 0;
+  margin: 30px 0 0 0;
+  font-size: 14px;
 }

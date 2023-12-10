@@ -1,4 +1,4 @@
-const ZFR_1_9_2E_dataPoints = [
+const ZFR_1_9_2E = [
   { x: 0, y: 248 },
   { x: 36, y: 238 },
   { x: 68, y: 230 },
@@ -24,7 +24,7 @@ const ZFR_1_9_2E_dataPoints = [
   { x: 515, y: 0 },
 ];
 
-const ZFR_2_25_2E_dataPoints = [
+const ZFR_2_25_2E = [
   { x: 0, y: 533 },
   { x: 55, y: 516 },
   { x: 125, y: 498 },
@@ -53,7 +53,7 @@ const ZFR_2_25_2E_dataPoints = [
   { x: 1069, y: 0 },
 ];
 
-const ZFR_2_5_2E_dataPoints = [
+const ZFR_2_5_2E = [
   { x: 0, y: 350 },
   { x: 66, y: 338 },
   { x: 176, y: 325 },
@@ -78,7 +78,7 @@ const ZFR_2_5_2E_dataPoints = [
   { x: 1403, y: 0 },
 ];
 
-const ZFR_2_8_2E_dataPoints = [
+const ZFR_2_8_2E = [
   { x: 0, y: 591 },
   { x: 12, y: 588 },
   { x: 33, y: 583 },
@@ -135,7 +135,7 @@ const ZFR_2_8_2E_dataPoints = [
   { x: 1628, y: 0 },
 ];
 
-const ZFR_3_1_4E_3_1_4D_dataPoints = [
+const ZFR_3_1_4E_3_1_4D = [
   { x: 0, y: 230 },
   { x: 46, y: 224 },
   { x: 86, y: 221 },
@@ -167,41 +167,47 @@ const ZFR_3_1_4E_3_1_4D_dataPoints = [
   { x: 1750, y: 0 },
 ];
 
-const ZFR_3_5_4E_dataPoints = [
+const ZFR_3_5_4E = [
   { x: 0, y: 350 },
-  { x: 56, y: 346 },
-  { x: 111, y: 343 },
-  { x: 201, y: 338 },
-  { x: 261, y: 329 },
-  { x: 455, y: 324 },
-  { x: 570, y: 306 },
-  { x: 685, y: 297 },
-  { x: 805, y: 287 },
-  { x: 854, y: 275 },
-  { x: 984, y: 271 },
-  { x: 1094, y: 259 },
-  { x: 1184, y: 248 },
-  { x: 1284, y: 240 },
-  { x: 1343, y: 230 },
-  { x: 1448, y: 224 },
-  { x: 1543, y: 213 },
-  { x: 1713, y: 182 },
-  { x: 1782, y: 172 },
-  { x: 1822, y: 165 },
-  { x: 1862, y: 158 },
-  { x: 1917, y: 146 },
-  { x: 1962, y: 135 },
-  { x: 1997, y: 125 },
-  { x: 2022, y: 115 },
-  { x: 2047, y: 93 },
-  { x: 2072, y: 56 },
-  { x: 2142, y: 36 },
-  { x: 2157, y: 21 },
-  { x: 2182, y: 8 },
+  { x: 56, y: 345 },
+  { x: 116, y: 339 },
+  { x: 210, y: 330 },
+  { x: 285, y: 323 },
+  { x: 350, y: 317 },
+  { x: 415, y: 312 },
+  { x: 500, y: 303 },
+  { x: 575, y: 297 },
+  { x: 640, y: 291 },
+  { x: 705, y: 285 },
+  { x: 770, y: 279 },
+  { x: 849, y: 272 },
+  { x: 924, y: 265 },
+  { x: 984, y: 260 },
+  { x: 1074, y: 252 },
+  { x: 1184, y: 241 },
+  { x: 1279, y: 232 },
+  { x: 1364, y: 224 },
+  { x: 1463, y: 212 },
+  { x: 1543, y: 203 },
+  { x: 1618, y: 195 },
+  { x: 1703, y: 184 },
+  { x: 1778, y: 173 },
+  { x: 1833, y: 164 },
+  { x: 1883, y: 155 },
+  { x: 1943, y: 141 },
+  { x: 2002, y: 124 },
+  { x: 2032, y: 111 },
+  { x: 2057, y: 101 },
+  { x: 2072, y: 90 },
+  { x: 2107, y: 65 },
+  { x: 2122, y: 53 },
+  { x: 2137, y: 41 },
+  { x: 2152, y: 28 },
+  { x: 2172, y: 14 },
   { x: 2200, y: 0 },
 ];
 
-const ZFR_3_5_4D_dataPoints = [
+const ZFR_3_5_4D = [
   { x: 0, y: 330 },
   { x: 86, y: 321 },
   { x: 191, y: 312 },
@@ -235,7 +241,7 @@ const ZFR_3_5_4D_dataPoints = [
   { x: 2250, y: 0 },
 ];
 
-const ZFR_4_4E_dataPoints = [
+const ZFR_4_4E = [
   { x: 0, y: 390 },
   { x: 66, y: 387 },
   { x: 181, y: 383 },
@@ -288,7 +294,7 @@ const ZFR_4_4E_dataPoints = [
   { x: 4100, y: 0 },
 ];
 
-const ZFR_4_4D_dataPoints = [
+const ZFR_4_4D = [
   { x: 0, y: 400 },
   { x: 310, y: 384 },
   { x: 857, y: 360 },
@@ -312,7 +318,7 @@ const ZFR_4_4D_dataPoints = [
   { x: 4100, y: 0 },
 ];
 
-const ZFR_4_5_4E_dataPoints = [
+const ZFR_4_5_4E = [
   { x: 0, y: 480 },
   { x: 186, y: 470 },
   { x: 368, y: 460 },
@@ -341,7 +347,7 @@ const ZFR_4_5_4E_dataPoints = [
   { x: 5400, y: 0 },
 ];
 
-const ZFR_4_5_4D_dataPoints = [
+const ZFR_4_5_4D = [
   { x: 0, y: 450 },
   { x: 227, y: 444 },
   { x: 611, y: 439 },
@@ -369,7 +375,7 @@ const ZFR_4_5_4D_dataPoints = [
   { x: 5600, y: 0 },
 ];
 
-const ZFR_5_4D_dataPoints = [
+const ZFR_5_4D = [
   { x: 0, y: 620 },
   { x: 202, y: 609 },
   { x: 424, y: 600 },
@@ -402,7 +408,7 @@ const ZFR_5_4D_dataPoints = [
   { x: 8400, y: 0 },
 ];
 
-const ZFR_5_6_4D_dataPoints = [
+const ZFR_5_6_4D = [
   { x: 0, y: 700 },
   { x: 219, y: 686 },
   { x: 644, y: 667 },
@@ -429,7 +435,7 @@ const ZFR_5_6_4D_dataPoints = [
   { x: 10200, y: 0 },
 ];
 
-const ZFR_6_3_4D_dataPoints = [
+const ZFR_6_3_4D = [
   { x: 0, y: 1050 },
   { x: 187, y: 1035 },
   { x: 430, y: 1021 },
@@ -487,18 +493,18 @@ const ZFR_6_3_4D_dataPoints = [
 ];
 
 export {
-  ZFR_1_9_2E_dataPoints,
-  ZFR_2_25_2E_dataPoints,
-  ZFR_2_5_2E_dataPoints,
-  ZFR_2_8_2E_dataPoints,
-  ZFR_3_1_4E_3_1_4D_dataPoints,
-  ZFR_3_5_4E_dataPoints,
-  ZFR_3_5_4D_dataPoints,
-  ZFR_4_4E_dataPoints,
-  ZFR_4_4D_dataPoints,
-  ZFR_4_5_4E_dataPoints,
-  ZFR_4_5_4D_dataPoints,
-  ZFR_5_4D_dataPoints,
-  ZFR_5_6_4D_dataPoints,
-  ZFR_6_3_4D_dataPoints,
+  ZFR_1_9_2E,
+  ZFR_2_25_2E,
+  ZFR_2_5_2E,
+  ZFR_2_8_2E,
+  ZFR_3_1_4E_3_1_4D,
+  ZFR_3_5_4E,
+  ZFR_3_5_4D,
+  ZFR_4_4E,
+  ZFR_4_4D,
+  ZFR_4_5_4E,
+  ZFR_4_5_4D,
+  ZFR_5_4D,
+  ZFR_5_6_4D,
+  ZFR_6_3_4D,
 }

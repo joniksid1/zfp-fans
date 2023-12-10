@@ -7,6 +7,7 @@ function Main() {
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
+  const [logMessages, setLogMessages] = useState([]);
 
   const plotRef = useRef(null);
 
@@ -44,13 +45,22 @@ function Main() {
     if (flowRateValue <= maxXValue && flowRateValue > 0) {
       const interpolatedY = interpolatePoints(flowRateValue, dataPoints);
       if (interpolatedY >= staticPressureValue) {
-        return console.log(
-          `Вентилятор ${fanName} попал в график с рабочей точкой ${flowRateValue} м3/ч ${staticPressureValue} Па`
-        );
+        setLogMessages(prevMessages => [
+          ...prevMessages,
+          `Вентилятор ${fanName} попал в график с рабочей точкой ${flowRateValue} м3/ч ${staticPressureValue} Па`,
+        ]);
+        return;
       }
-      return console.log(`Для заданного расхода ${fanName} не хватает ${staticPressureValue - interpolatedY} Па`);
+      setLogMessages(prevMessages => [
+        ...prevMessages,
+        `Для заданного расхода ${fanName} не хватает ${staticPressureValue - interpolatedY} Па`,
+      ]);
+    } else {
+      setLogMessages(prevMessages => [
+        ...prevMessages,
+        `Расход воздуха ${flowRateValue} вне допустимого диапазона для ${fanName}`,
+      ]);
     }
-    return console.log(`Расход воздуха ${flowRateValue} вне допустимого диапазона для ${fanName}`);
   };
 
   const handleSubmit = (e) => {
@@ -60,9 +70,11 @@ function Main() {
     for (let i = 0; i < keys.length; i++) {
       calculateFan(dataPoints[keys[i]], keys[i]);
     }
-
-    console.log('Расчёт выполнен...');
   };
+
+  const handleLogClear = () => {
+    setLogMessages([]);
+  }
 
   return (
     <main className="main">
@@ -147,6 +159,24 @@ function Main() {
               Рассчитать
             </button>
           </form>
+        </div>
+      </section>
+      <section className='log'>
+        <h2 className='log__title'>
+          Лог расчёта:
+        </h2>
+        <div className='log__wrapper'>
+          <button
+            className='log__button calculator__button'
+            onClick={handleLogClear}
+          >
+            Очистить лог
+          </button>
+          <p className="log__data">
+            {logMessages.map((message, index) => (
+              <span key={index}>{message}<br /></span>
+            ))}
+          </p>
         </div>
       </section>
     </main>

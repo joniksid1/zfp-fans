@@ -8,6 +8,9 @@ function Main() {
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
   const [logMessages, setLogMessages] = useState([]);
+  const [newPoint, setNewPoint] = useState(null);
+  const [perpendicularLines, setPerpendicularLines] = useState([]);
+  const [calculatedLine, setCalculatedLine] = useState(null);
 
   const plotRef = useRef(null);
 
@@ -63,6 +66,44 @@ function Main() {
     }
   };
 
+  const setPointOnChart = () => {
+    const xValue = parseFloat(flowRateValue);
+    const yValue = parseFloat(staticPressureValue);
+
+    if (!isNaN(xValue) && !isNaN(yValue)) {
+      const newPoint = {
+        x: xValue,
+        y: yValue,
+      };
+
+      const perpendicularLines = [
+        { type: 'line', x0: xValue, y0: 0, x1: xValue, y1: yValue, line: { dash: 'dash', color: 'grey' } },
+        { type: 'line', x0: 0, y0: yValue, x1: xValue, y1: yValue, line: { dash: 'dash', color: 'grey' } },
+      ];
+
+      const k = yValue / (xValue ** 2);
+
+      const calculatedLinePoints = [];
+      for (let v = 0; v <= xValue; v += 100) {
+        const p = k * v ** 2;
+        calculatedLinePoints.push({ x: v, y: p });
+      }
+
+      const networkResistanceLine = {
+        name: 'Сопротивление сети',
+        type: 'scatter',
+        mode: 'lines',
+        x: calculatedLinePoints.map(point => point.x),
+        y: calculatedLinePoints.map(point => point.y),
+        line: { color: 'red' },
+      };
+
+      setNewPoint(newPoint);
+      setPerpendicularLines(perpendicularLines);
+      setCalculatedLine(networkResistanceLine);
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const keys = Object.keys(dataPoints);
@@ -70,6 +111,8 @@ function Main() {
     for (let i = 0; i < keys.length; i++) {
       calculateFan(dataPoints[keys[i]], keys[i]);
     }
+
+    setPointOnChart();
   };
 
   const handleLogClear = () => {
@@ -86,7 +129,18 @@ function Main() {
           <div className='calculator__chart' ref={plotRef}>
             <Plot
               className='chart'
-              data={chartDataSets}
+              data={[
+                ...chartDataSets,
+                newPoint && {
+                  type: 'scatter',
+                  mode: 'markers',
+                  x: [newPoint.x],
+                  y: [newPoint.y],
+                  marker: { color: 'red', size: 8 },
+                  name: 'Рабочая точка',
+                },
+                calculatedLine,
+              ].filter(Boolean)}
               config={{
                 displayModeBar: false,
                 editable: false,
@@ -104,6 +158,7 @@ function Main() {
                   title: 'Давление сети (Па)',
                   range: [0, 1100 * scale],
                 },
+                shapes: perpendicularLines,
               }}
             />
           </div>

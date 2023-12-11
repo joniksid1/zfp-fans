@@ -27,17 +27,22 @@ function Main() {
     setScale(newScale);
   };
 
-  function linearInterpolation(x, x1, y1, x2, y2) {
-    return y1 + (x - x1) * ((y2 - y1) / (x2 - x1));
+  function quadraticInterpolation(x, x0, y0, x1, y1, x2, y2) {
+    const t = (x - x0) / (x1 - x0);
+    const u = (x1 - x) / (x1 - x0);
+    return y0 * u * u + y1 * 2 * t * u + y2 * t * t;
   }
 
   function interpolatePoints(xValue, dataPoints) {
-    for (let i = 0; i < dataPoints.length - 1; i++) {
-      const point1 = dataPoints[i];
-      const point2 = dataPoints[i + 1];
+    for (let i = 0; i < dataPoints.length - 2; i++) {
+      const point0 = dataPoints[i];
+      const point1 = dataPoints[i + 1];
+      const point2 = dataPoints[i + 2];
 
       if (xValue >= point1.x && xValue <= point2.x) {
-        const interpolatedY = linearInterpolation(xValue, point1.x, point1.y, point2.x, point2.y);
+        const interpolatedY = quadraticInterpolation(
+          xValue, point0.x, point0.y, point1.x, point1.y, point2.x, point2.y
+        );
         return interpolatedY;
       }
     }

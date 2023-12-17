@@ -1,9 +1,12 @@
 import { useState, useRef } from 'react';
-import Plot from 'react-plotly.js';
+import { Routes, Route } from 'react-router-dom';
 import * as dataPoints from '../utils/chart-data-points';
-import chartDataSets from '../utils/chart-config';
+import Info from './info';
+import Calculator from './calculator';
+import PropTypes from 'prop-types';
+import { INPUT_REGEXP } from '../utils/constants';
 
-function Main() {
+function Main({ view }) {
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
@@ -11,15 +14,20 @@ function Main() {
   const [newPoint, setNewPoint] = useState(null);
   const [perpendicularLines, setPerpendicularLines] = useState([]);
   const [calculatedLine, setCalculatedLine] = useState(null);
+  const [displayModeBar, setDisplayModeBar] = useState(false);
 
   const plotRef = useRef(null);
 
   const flowRateValueChange = (e) => {
-    setFlowRateValue(e.target.value);
+    if (INPUT_REGEXP.test(e.target.value)) {
+      setFlowRateValue(e.target.value);
+    }
   };
 
   const staticPressureValueChange = (e) => {
-    setStaticPressureValue(e.target.value);
+    if (INPUT_REGEXP.test(e.target.value)) {
+      setStaticPressureValue(e.target.value);
+    }
   };
 
   const handleScaleSliderChange = (e) => {
@@ -126,121 +134,54 @@ function Main() {
 
   return (
     <main className="main">
-      <section className="calculator">
-        <h1 className="calculator__title" aria-label="Расчёт вентилятора">
-          Расчёт крышного вентилятора
-        </h1>
-        <div className="calculator__wrapper">
-          <div className='calculator__chart' ref={plotRef}>
-            <Plot
-              className='chart'
-              data={[
-                ...chartDataSets,
-                newPoint && {
-                  type: 'scatter',
-                  mode: 'markers',
-                  x: [newPoint.x],
-                  y: [newPoint.y],
-                  marker: { color: 'red', size: 8 },
-                  name: 'Рабочая точка',
-                },
-                calculatedLine,
-              ].filter(Boolean)}
-              config={{
-                displayModeBar: false,
-                editable: false,
-                staticPlot: false,
-                responsive: true,
-                displaylogo: false,
-              }}
-              layout={{
-                title: 'График рабочей точки',
-                xaxis: {
-                  title: 'Поток воздуха (м³/ч)',
-                  range: [0, 16000 * scale],
-                },
-                yaxis: {
-                  title: 'Давление сети (Па)',
-                  range: [0, 1100 * scale],
-                },
-                shapes: perpendicularLines,
-              }}
-            />
-          </div>
-          <form
-            name='calculator'
-            className="calculator__form"
-            noValidate
-            onSubmit={handleSubmit}
-          >
-            <label htmlFor="scaleInput" className="calculator__label">
-              Масштаб:
-            </label>
-            <input
-              type="range"
-              id="scaleSlider"
-              className="styled-slider slider-progress"
-              min="0.1"
-              max="2"
-              step="0.1"
-              value={scale}
-              onChange={handleScaleSliderChange}
-            />
-            <label htmlFor="flowRateInput" className="calculator__label">
-              Поток воздуха (м³/ч):
-            </label>
-            <input
-              name="flowRate"
-              minLength={1}
-              maxLength={5}
-              type="number"
-              id="flowRateInput"
-              className="calculator__input calculator__input_type_flow-rate"
-              required=""
-              value={flowRateValue ?? ''}
-              onChange={flowRateValueChange}
-            />
-            <label htmlFor="staticPressureInput" className="calculator__label">
-              Давление сети (Па):
-            </label>
-            <input
-              name="staticPressure"
-              type="number"
-              id="staticPressureInput"
-              className="calculator__input calculator__input_type_static-pressure"
-              required=""
-              value={staticPressureValue ?? ''}
-              onChange={staticPressureValueChange}
-            />
+      <Routes>
+        <Route path="/info" element={<Info />} />
+        <Route path="/" element={
+          <Calculator
+            plotRef={plotRef}
+            displayModeBar={displayModeBar}
+            newPoint={newPoint}
+            calculatedLine={calculatedLine}
+            perpendicularLines={perpendicularLines}
+            scale={scale}
+            handleSubmit={handleSubmit}
+            handleScaleSliderChange={handleScaleSliderChange}
+            flowRateValue={flowRateValue}
+            flowRateValueChange={flowRateValueChange}
+            staticPressureValue={staticPressureValue}
+            staticPressureValueChange={staticPressureValueChange}
+            view={view}
+            setDisplayModeBar={setDisplayModeBar}
+          />
+        } />
+      </Routes>
+      {view === 'form' &&
+        <section className='log'>
+          <h2 className='log__title'>
+            Лог расчёта:
+          </h2>
+          <div className='log__wrapper'>
             <button
-              className='calculator__button'
-              type="submit"
+              className='log__button calculator__button'
+              onClick={handleLogClear}
             >
-              Рассчитать
+              Очистить лог
             </button>
-          </form>
-        </div>
-      </section>
-      <section className='log'>
-        <h2 className='log__title'>
-          Лог расчёта:
-        </h2>
-        <div className='log__wrapper'>
-          <button
-            className='log__button calculator__button'
-            onClick={handleLogClear}
-          >
-            Очистить лог
-          </button>
-          <p className="log__data">
-            {logMessages.map((message, index) => (
-              <span key={index}>{message}<br /></span>
-            ))}
-          </p>
-        </div>
-      </section>
-    </main>
+            <p className="log__data">
+              {logMessages.map((message, index) => (
+                <span key={index}>{message}<br /></span>
+              ))}
+            </p>
+          </div>
+        </section>
+      }
+    </main >
   );
 }
+
+Main.propTypes = {
+  view: PropTypes.string,
+};
+
 
 export default Main;

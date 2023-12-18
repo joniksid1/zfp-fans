@@ -143,7 +143,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .calculator__form {
-  max-width: 200px;
   width: 100%;
   margin: 0px 0px 0px 20px;
   padding: 20px;
@@ -242,7 +241,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .settings {
-  max-width: 200px;
   width: 100%;
   margin: 0px 0px 0px 20px;
   padding: 20px;

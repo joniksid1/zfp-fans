@@ -35,49 +35,53 @@ function Main({ view }) {
     setScale(newScale);
   };
 
-  function quadraticInterpolation(x, x0, y0, x1, y1, x2, y2) {
-    const t = (x - x0) / (x1 - x0);
-    const u = (x1 - x) / (x1 - x0);
-    return y0 * u * u + y1 * 2 * t * u + y2 * t * t;
-  }
+  function interpolatePoints(x, points) {
+    if (x <= points[0].x) {
+      return points[0].y;
+    }
 
-  function interpolatePoints(xValue, dataPoints) {
-    for (let i = 0; i < dataPoints.length - 2; i++) {
-      const point0 = dataPoints[i];
-      const point1 = dataPoints[i + 1];
-      const point2 = dataPoints[i + 2];
+    for (let i = 1; i < points.length; i++) {
+      if (x < points[i].x) {
+        const x0 = points[i - 1].x;
+        const y0 = points[i - 1].y;
+        const x1 = points[i].x;
+        const y1 = points[i].y;
 
-      if (xValue >= point1.x && xValue <= point2.x) {
-        const interpolatedY = quadraticInterpolation(
-          xValue, point0.x, point0.y, point1.x, point1.y, point2.x, point2.y
-        );
-        return interpolatedY;
+        const ratio = (x - x0) / (x1 - x0);
+        return y0 + ratio * (y1 - y0);
       }
     }
+
+    return points[points.length - 1].y;
   }
 
   const calculateFan = (dataPoints, fanName) => {
     const maxXValue = Math.max(...dataPoints.map(point => point.x));
-    if (flowRateValue <= maxXValue && flowRateValue > 0) {
-      const interpolatedY = interpolatePoints(flowRateValue, dataPoints);
-      if (interpolatedY >= staticPressureValue) {
+    const xValue = parseFloat(flowRateValue);
+    const yValue = parseFloat(staticPressureValue);
+
+    const interpolatedY = interpolatePoints(xValue, dataPoints);
+
+    if (xValue <= maxXValue && xValue > 0) {
+      if (yValue <= interpolatedY) {
         setLogMessages(prevMessages => [
           ...prevMessages,
-          `Вентилятор ${fanName} попал в график с рабочей точкой ${flowRateValue} м3/ч ${staticPressureValue} Па`,
+          `Вентилятор ${fanName} попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па`,
         ]);
         return;
       }
       setLogMessages(prevMessages => [
         ...prevMessages,
-        `Для заданного расхода ${fanName} не хватает ${staticPressureValue - interpolatedY} Па`,
+        `Для заданного расхода ${fanName} не хватает ${yValue - interpolatedY} Па`,
       ]);
     } else {
       setLogMessages(prevMessages => [
         ...prevMessages,
-        `Расход воздуха ${flowRateValue} вне допустимого диапазона для ${fanName}`,
+        `Расход воздуха ${xValue} вне допустимого диапазона для ${fanName}`,
       ]);
     }
   };
+
 
   const setPointOnChart = () => {
     const xValue = parseFloat(flowRateValue);

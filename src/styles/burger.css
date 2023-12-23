@@ -1,0 +1,43 @@
+.burger {
+  position: relative;
+  padding: 0 20px 0 0;
+}
+
+.burger__button {
+  border: 2px solid #bdbdbd;
+  border-radius: 5px;
+  color: #fff;
+  background-color: #504f4f;
+  font-size: 24px;
+  cursor: pointer;
+  transition: opacity .3s ease-in-out;
+}
+
+.burger__button:hover {
+  opacity: .7;
+}
+
+.burger__items {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.burger__link {
+  display: block;
+  margin-bottom: 8px;
+  text-decoration: none;
+  color: #333;
+}
+
+.burger__link:last-of-type {
+  margin-bottom: 0;
+}
+
+.burger__link:hover {
+  opacity: .7;
+}

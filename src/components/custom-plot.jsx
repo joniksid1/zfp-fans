@@ -1,13 +1,64 @@
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
 import chartDataSets from '../utils/chart-config';
-import PropTypes from 'prop-types';
 
-const CustomPlot = ({ displayModeBar, newPoint, calculatedLine, perpendicularLines, scale }) => {
+const CustomPlot = ({ displayModeBar, newPoint, calculatedLine, perpendicularLines, scale, hoveredFan }) => {
+  const [revision, setRevision] = useState(0);
+
+  // Выбор цвета линии в зависимости от наведения на список вентиляторов в результате расчёта
+
+  const getLineColor = useCallback(
+    (fanName) => {
+      if (hoveredFan && fanName === hoveredFan) {
+        return 'red';
+      } else {
+        const matchingDataset = chartDataSets.find((dataset) => dataset.name === fanName);
+        if (matchingDataset) {
+          return matchingDataset.line.color;
+        }
+        return 'rgb(152, 150, 150)';
+      }
+    },
+    [hoveredFan]
+  );
+
+  // Обновление цвета линий графиков вентиляторов
+
+  const updatedDataSets = useMemo(() => {
+    return chartDataSets.map((dataset) => {
+      if (dataset.name === hoveredFan) {
+        const newDataset = {
+          ...dataset,
+          line: {
+            ...dataset.line,
+            color: getLineColor(hoveredFan),
+          },
+        };
+        return newDataset;
+      } else {
+        const newColor = getLineColor(dataset.name);
+        return {
+          ...dataset,
+          line: {
+            ...dataset.line,
+            color: newColor,
+          },
+        };
+      }
+    });
+  }, [hoveredFan, getLineColor]);
+
+  useEffect(() => {
+    // Обновляем график
+    setRevision((r) => r + 1);
+  }, [updatedDataSets]); // Инициализация перерисовки компонента графика при изменении updatedDataSets
+
   return (
     <Plot
-      className='chart'
+      className="chart"
       data={[
-        ...chartDataSets,
+        ...updatedDataSets,
         newPoint && {
           type: 'scatter',
           mode: 'markers',
@@ -37,7 +88,9 @@ const CustomPlot = ({ displayModeBar, newPoint, calculatedLine, perpendicularLin
         },
         shapes: perpendicularLines,
       }}
+      revision={revision} // Без этого пропса график не перерисовывается
     />
+
   );
 };
 
@@ -47,6 +100,7 @@ CustomPlot.propTypes = {
   calculatedLine: PropTypes.object,
   perpendicularLines: PropTypes.arrayOf(PropTypes.object),
   scale: PropTypes.number.isRequired,
+  hoveredFan: PropTypes.string,
 };
 
 export default CustomPlot;

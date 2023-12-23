@@ -1,6 +1,8 @@
 import CustomPlot from './custom-plot';
 import Settings from './settings';
 import PropTypes from 'prop-types';
+import FanList from './fan-list';
+import { useState } from 'react';
 
 function Calculator({
   plotRef,
@@ -17,7 +19,14 @@ function Calculator({
   staticPressureValueChange,
   view,
   setDisplayModeBar,
+  fanResults,
 }) {
+
+  // Выбор вентилятора при наведении и по клику. Наведение setHoveredFan используется для изменение цвета линии графика соответствующего вентилятора.
+  // Клик на элемент списка FanList использует setSelectedFany
+
+  const [selectedFan, setSelectedFan] = useState(null);
+  const [hoveredFan, setHoveredFan] = useState(null);
 
   return (
     <section className="calculator">
@@ -29,8 +38,11 @@ function Calculator({
             calculatedLine={calculatedLine}
             perpendicularLines={perpendicularLines}
             scale={scale}
+            selectedFan={selectedFan}
+            hoveredFan={hoveredFan}
           />
         </div>
+        {/* view переключается по нажатию на опции контекстного меню "бургера" */}
         {view === 'settings' ? (
           <Settings
             setDisplayModeBar={setDisplayModeBar}
@@ -75,6 +87,9 @@ function Calculator({
             >
               Рассчитать
             </button>
+            {fanResults.length > 0 && (
+              <FanList fanResults={fanResults} selectedFan={selectedFan} setSelectedFan={setSelectedFan} setHoveredFan={setHoveredFan}/>
+            )}
           </form>
         )}
       </div>
@@ -97,6 +112,7 @@ Calculator.propTypes = {
   staticPressureValueChange: PropTypes.func,
   view: PropTypes.string,
   setDisplayModeBar: PropTypes.func,
+  fanResults: PropTypes.array,
 };
 
 export default Calculator;

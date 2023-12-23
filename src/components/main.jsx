@@ -10,6 +10,7 @@ function Main({ view }) {
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
+  const [fanResults, setFanResults] = useState([]);
   const [logMessages, setLogMessages] = useState([]);
   const [newPoint, setNewPoint] = useState(null);
   const [perpendicularLines, setPerpendicularLines] = useState([]);
@@ -17,6 +18,8 @@ function Main({ view }) {
   const [displayModeBar, setDisplayModeBar] = useState(false);
 
   const plotRef = useRef(null);
+
+  // Обработка инпутов ввода расхода воздуа и давления
 
   const flowRateValueChange = (e) => {
     if (INPUT_REGEXP.test(e.target.value)) {
@@ -30,12 +33,16 @@ function Main({ view }) {
     }
   };
 
+  // Изменение масштаба графика с помощью "слайдера"
+
   const handleScaleSliderChange = (e) => {
     const newScale = parseFloat(e.target.value);
     setScale(newScale);
   };
 
-  function interpolatePoints(x, points) {
+  // Рассчёт промежуточных точек графиков вентилятора интерполяцией (не используется в отрисовке, только для расчёта)
+
+  function interpolateY(x, points) {
     if (x <= points[0].x) {
       return points[0].y;
     }
@@ -55,35 +62,62 @@ function Main({ view }) {
     return points[points.length - 1].y;
   }
 
+  // Обратная интерполяция для вычисления x (м3/ч) по заданному y (Па)
+
+  function inverseInterpolateX(y, points) {
+    if (y >= points[0].y) {
+      return points[0].x;
+    }
+
+    for (let i = 1; i < points.length; i++) {
+      if (y > points[i].y) {
+        const x0 = points[i - 1].x;
+        const y0 = points[i - 1].y;
+        const x1 = points[i].x;
+        const y1 = points[i].y;
+
+        const ratio = (y - y0) / (y1 - y0);
+        return x0 + ratio * (x1 - x0);
+      }
+    }
+
+    return points[points.length - 1].x;
+  }
+
   const calculateFan = (dataPoints, fanName) => {
     const maxXValue = Math.max(...dataPoints.map(point => point.x));
     const xValue = parseFloat(flowRateValue);
     const yValue = parseFloat(staticPressureValue);
 
-    const interpolatedY = interpolatePoints(xValue, dataPoints);
+    const interpolatedY = interpolateY(xValue, dataPoints);
+    const interpolatedX = inverseInterpolateX(yValue, dataPoints);
+
+    let resultMessage;
+    const flowDeviation = Math.round((interpolatedX - xValue) / xValue * 100);
 
     if (xValue <= maxXValue && xValue > 0) {
-      if (yValue <= interpolatedY) {
-        setLogMessages(prevMessages => [
-          ...prevMessages,
-          `Вентилятор ${fanName} попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па`,
+      if (yValue <= interpolatedY ) {
+        resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу +${flowDeviation}%`;
+        setFanResults((prevResults) => [
+          ...prevResults,
+          { fanName, result: resultMessage, flowDeviation },
         ]);
-        return;
+      } else {
+        resultMessage = `не хватает ${Math.round(yValue - interpolatedY)} Па для заданного расхода воздуха ${xValue} м3/ч, отклонение по расходу ${flowDeviation}%`;
       }
-      setLogMessages(prevMessages => [
-        ...prevMessages,
-        `Для заданного расхода ${fanName} не хватает ${yValue - interpolatedY} Па`,
-      ]);
     } else {
-      setLogMessages(prevMessages => [
-        ...prevMessages,
-        `Расход воздуха ${xValue} вне допустимого диапазона для ${fanName}`,
-      ]);
+      resultMessage = `расход воздуха ${xValue} м3/ч вне допустимого диапазона, максимальный расход для данного вентилятора ${maxXValue} м3/ч, отклонение по расходу ${flowDeviation}%`;
     }
+
+    setLogMessages(prevResults => [
+      ...prevResults,
+      fanName, resultMessage,
+    ]);
   };
 
+  // Установка заданной точки, линии сопротивления сети и перпендикулярных линий на графике при расчёте
 
-  const setPointOnChart = () => {
+  const setPointWithLinesOnChart = () => {
     const xValue = parseFloat(flowRateValue);
     const yValue = parseFloat(staticPressureValue);
 
@@ -121,16 +155,21 @@ function Main({ view }) {
     }
   }
 
+  // Вызывается в по нажатию на "Рассчитать"
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const keys = Object.keys(dataPoints);
+    setFanResults([]);
 
     for (let i = 0; i < keys.length; i++) {
       calculateFan(dataPoints[keys[i]], keys[i]);
     }
 
-    setPointOnChart();
+    setPointWithLinesOnChart();
   };
+
+  // Очистка лога на кнопку "Очистить"
 
   const handleLogClear = () => {
     setLogMessages([]);
@@ -156,6 +195,7 @@ function Main({ view }) {
             staticPressureValueChange={staticPressureValueChange}
             view={view}
             setDisplayModeBar={setDisplayModeBar}
+            fanResults={fanResults}
           />
         } />
       </Routes>

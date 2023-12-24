@@ -19,7 +19,10 @@ function Calculator({
   staticPressureValueChange,
   view,
   setDisplayModeBar,
-  fanResults,
+  correctFanResults,
+  displayLog,
+  setDisplayLog,
+  allFanResults,
 }) {
 
   // Выбор вентилятора при наведении и по клику. Наведение setHoveredFan используется для изменение цвета линии графика соответствующего вентилятора.
@@ -27,6 +30,8 @@ function Calculator({
 
   const [selectedFan, setSelectedFan] = useState(null);
   const [hoveredFan, setHoveredFan] = useState(null);
+  const [displayAllOnPlot, setDisplayAllOnPlot] = useState(false);
+  const [displayAllFanResults, setDisplayAllFanResults] = useState(false);
 
   return (
     <section className="calculator">
@@ -40,6 +45,8 @@ function Calculator({
             scale={scale}
             selectedFan={selectedFan}
             hoveredFan={hoveredFan}
+            correctFanResults={correctFanResults}
+            displayAllOnPlot={displayAllOnPlot}
           />
         </div>
         {/* view переключается по нажатию на опции контекстного меню "бургера" */}
@@ -49,6 +56,12 @@ function Calculator({
             handleScaleSliderChange={handleScaleSliderChange}
             scale={scale}
             displayModeBar={displayModeBar}
+            displayAllOnPlot={displayAllOnPlot}
+            setDisplayAllOnPlot={setDisplayAllOnPlot}
+            displayLog={displayLog}
+            setDisplayLog={setDisplayLog}
+            displayAllFanResults={displayAllFanResults}
+            setDisplayAllFanResults={setDisplayAllFanResults}
           />
         ) : (
           <form
@@ -87,8 +100,15 @@ function Calculator({
             >
               Рассчитать
             </button>
-            {fanResults.length > 0 && (
-              <FanList fanResults={fanResults} selectedFan={selectedFan} setSelectedFan={setSelectedFan} setHoveredFan={setHoveredFan}/>
+            {allFanResults.length > 0 && (
+              <FanList
+                correctFanResults={correctFanResults}
+                allFanResults={allFanResults}
+                selectedFan={selectedFan}
+                setSelectedFan={setSelectedFan}
+                setHoveredFan={setHoveredFan}
+                displayAllFanResults={displayAllFanResults}
+              />
             )}
           </form>
         )}
@@ -112,7 +132,10 @@ Calculator.propTypes = {
   staticPressureValueChange: PropTypes.func,
   view: PropTypes.string,
   setDisplayModeBar: PropTypes.func,
-  fanResults: PropTypes.array,
+  correctFanResults: PropTypes.array,
+  allFanResults: PropTypes.array,
+  displayLog: PropTypes.bool,
+  setDisplayLog: PropTypes.func,
 };
 
 export default Calculator;

@@ -4,31 +4,33 @@ import * as dataPoints from '../utils/chart-data-points';
 import Info from './info';
 import Calculator from './calculator';
 import PropTypes from 'prop-types';
-import { INPUT_REGEXP } from '../utils/constants';
+import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
 
 function Main({ view }) {
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
-  const [fanResults, setFanResults] = useState([]);
+  const [correctFanResults, setCorrectFanResults] = useState([]);
+  const [allFanResults, setAllFanResults] = useState([]);
   const [logMessages, setLogMessages] = useState([]);
   const [newPoint, setNewPoint] = useState(null);
   const [perpendicularLines, setPerpendicularLines] = useState([]);
   const [calculatedLine, setCalculatedLine] = useState(null);
   const [displayModeBar, setDisplayModeBar] = useState(false);
+  const [displayLog, setDisplayLog] = useState(true);
 
   const plotRef = useRef(null);
 
   // Обработка инпутов ввода расхода воздуа и давления
 
   const flowRateValueChange = (e) => {
-    if (INPUT_REGEXP.test(e.target.value)) {
+    if (FLOW_INPUT_REGEXP.test(e.target.value)) {
       setFlowRateValue(e.target.value);
     }
   };
 
   const staticPressureValueChange = (e) => {
-    if (INPUT_REGEXP.test(e.target.value)) {
+    if (PRESSURE_INPUT_REGEXP.test(e.target.value)) {
       setStaticPressureValue(e.target.value);
     }
   };
@@ -84,6 +86,8 @@ function Main({ view }) {
     return points[points.length - 1].x;
   }
 
+  // Расчёт вентилятора с записью сообщений в стейты и логи
+
   const calculateFan = (dataPoints, fanName) => {
     const maxXValue = Math.max(...dataPoints.map(point => point.x));
     const xValue = parseFloat(flowRateValue);
@@ -94,19 +98,32 @@ function Main({ view }) {
 
     let resultMessage;
     const flowDeviation = Math.round((interpolatedX - xValue) / xValue * 100);
+    const staticPressureDeviation = Math.round((interpolatedY - yValue) / yValue * 100);
 
     if (xValue <= maxXValue && xValue > 0) {
       if (yValue <= interpolatedY ) {
-        resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу +${flowDeviation}%`;
-        setFanResults((prevResults) => [
+        resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу + ${flowDeviation} %, отклонение по напору + ${staticPressureDeviation} %`;
+        setCorrectFanResults((prevResults) => [
+          ...prevResults,
+          { fanName, result: resultMessage, flowDeviation },
+        ]);
+        setAllFanResults((prevResults) => [
           ...prevResults,
           { fanName, result: resultMessage, flowDeviation },
         ]);
       } else {
-        resultMessage = `не хватает ${Math.round(yValue - interpolatedY)} Па для заданного расхода воздуха ${xValue} м3/ч, отклонение по расходу ${flowDeviation}%`;
+        setAllFanResults((prevResults) => [
+          ...prevResults,
+          { fanName, result: resultMessage, flowDeviation },
+        ]);
+        resultMessage = `не хватает ${Math.round(yValue - interpolatedY)} Па для заданного расхода воздуха ${xValue} м3/ч, отклонение по расходу ${flowDeviation} %`;
       }
     } else {
-      resultMessage = `расход воздуха ${xValue} м3/ч вне допустимого диапазона, максимальный расход для данного вентилятора ${maxXValue} м3/ч, отклонение по расходу ${flowDeviation}%`;
+      setAllFanResults((prevResults) => [
+        ...prevResults,
+        { fanName, result: resultMessage, flowDeviation },
+      ]);
+      resultMessage = `расход воздуха ${xValue} м3/ч вне допустимого диапазона, максимальный расход для данного вентилятора ${maxXValue} м3/ч, отклонение по расходу ${flowDeviation} %`;
     }
 
     setLogMessages(prevResults => [
@@ -160,7 +177,9 @@ function Main({ view }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const keys = Object.keys(dataPoints);
-    setFanResults([]);
+
+    setAllFanResults([]);
+    setCorrectFanResults([]);
 
     for (let i = 0; i < keys.length; i++) {
       calculateFan(dataPoints[keys[i]], keys[i]);
@@ -195,11 +214,14 @@ function Main({ view }) {
             staticPressureValueChange={staticPressureValueChange}
             view={view}
             setDisplayModeBar={setDisplayModeBar}
-            fanResults={fanResults}
+            correctFanResults={correctFanResults}
+            displayLog={displayLog}
+            setDisplayLog={setDisplayLog}
+            allFanResults={allFanResults}
           />
         } />
       </Routes>
-      {view === 'form' &&
+      {view === 'form' && displayLog &&
         <section className='log'>
           <h2 className='log__title'>
             Лог расчёта:

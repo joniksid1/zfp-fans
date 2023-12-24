@@ -1,0 +1,52 @@
+/* Для WebKit браузеров (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px; /* Для горизонтальной полосы */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(220,220,220, .8);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #fff;
+}
+
+/* Для Firefox */
+* {
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px; /* Для горизонтальной полосы */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(220,220,220, .8);
+  border-radius: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #fff;
+}
+
+/* Общие стили для браузеров, поддерживающих стандартные свойства */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(220,220,220, .8) #fff;
+}
+
+/* Стили для горизонтальной полосы */
+* {
+  scrollbar-color: rgba(220,220,220, .8) #fff;
+}
+
+*::-webkit-scrollbar-thumb:horizontal {
+  background-color: rgba(220,220,220, .8);;
+}
+
+*::-webkit-scrollbar-track:horizontal {
+  background-color: #fff;
+}

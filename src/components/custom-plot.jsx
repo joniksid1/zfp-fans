@@ -3,7 +3,16 @@ import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
 import chartDataSets from '../utils/chart-config';
 
-const CustomPlot = ({ displayModeBar, newPoint, calculatedLine, perpendicularLines, scale, hoveredFan }) => {
+function CustomPlot({
+  displayModeBar,
+  newPoint,
+  calculatedLine,
+  perpendicularLines,
+  scale,
+  hoveredFan,
+  correctFanResults,
+  displayAllOnPlot,
+}) {
   const [revision, setRevision] = useState(0);
 
   // Выбор цвета линии в зависимости от наведения на список вентиляторов в результате расчёта
@@ -17,37 +26,31 @@ const CustomPlot = ({ displayModeBar, newPoint, calculatedLine, perpendicularLin
         if (matchingDataset) {
           return matchingDataset.line.color;
         }
-        return 'rgb(152, 150, 150)';
+        return 'rgb(152, 152, 152)';
       }
     },
     [hoveredFan]
   );
 
-  // Обновление цвета линий графиков вентиляторов
+  // Обновление линий графиков вентиляторов в зависимости от реузльтата расчётов
 
   const updatedDataSets = useMemo(() => {
     return chartDataSets.map((dataset) => {
-      if (dataset.name === hoveredFan) {
-        const newDataset = {
-          ...dataset,
-          line: {
-            ...dataset.line,
-            color: getLineColor(hoveredFan),
-          },
-        };
-        return newDataset;
-      } else {
-        const newColor = getLineColor(dataset.name);
+      const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
+
+      const color = getLineColor(dataset.name);
+
+      if (displayAllOnPlot || fanResult) {
         return {
           ...dataset,
           line: {
             ...dataset.line,
-            color: newColor,
+            color: color,
           },
         };
       }
     });
-  }, [hoveredFan, getLineColor]);
+  }, [correctFanResults, getLineColor, displayAllOnPlot]);
 
   useEffect(() => {
     // Обновляем график
@@ -90,9 +93,8 @@ const CustomPlot = ({ displayModeBar, newPoint, calculatedLine, perpendicularLin
       }}
       revision={revision} // Без этого пропса график не перерисовывается
     />
-
   );
-};
+}
 
 CustomPlot.propTypes = {
   displayModeBar: PropTypes.bool.isRequired,
@@ -101,6 +103,13 @@ CustomPlot.propTypes = {
   perpendicularLines: PropTypes.arrayOf(PropTypes.object),
   scale: PropTypes.number.isRequired,
   hoveredFan: PropTypes.string,
+  correctFanResults: PropTypes.arrayOf(
+    PropTypes.shape({
+      fanName: PropTypes.string.isRequired,
+      result: PropTypes.string.isRequired,
+    })
+  ),
+  displayAllOnPlot: PropTypes.bool,
 };
 
 export default CustomPlot;

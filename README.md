@@ -4,6 +4,8 @@
 
 # Запуск
 
+В проекте используются следующие пакеты npm: "react", "react-dom", "react-router-dom", "react-modal", "react-plotly.js".
+
 1. Установка зависимостей - "npm install".
 2. Для локального запуска (режим разработки) проекта используется команда "npm run dev".
 3. Запуск линтера "ESlint" - "npm run lint".

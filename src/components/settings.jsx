@@ -15,7 +15,7 @@ function Settings({
 
   return (
     <div className="settings">
-      <label htmlFor="scaleInput" className="calculator__label">
+      <label htmlFor="scaleInput" className="settings__label">
         Масштаб:
       </label>
       <input
@@ -28,43 +28,43 @@ function Settings({
         value={scale}
         onChange={handleScaleSliderChange}
       />
-      <label htmlFor="scaleInput" className="calculator__label">
+      <label htmlFor="scaleInput" className="settings__label">
         Показать контроллеры графика:
       </label>
       <input
         type="checkbox"
         id="displayModeBarInput"
-        className="calculator__checkbox"
+        className="settings__checkbox"
         checked={displayModeBar}
         onChange={() => setDisplayModeBar(!displayModeBar)}
       />
-      <label htmlFor="displayAllOnPlot" className="calculator__label">
+      <label htmlFor="displayAllOnPlot" className="settings__label">
         Отрисовать графики для всех вентиляторов:
       </label>
       <input
         type="checkbox"
         id="displayAllOnPlot"
-        className="calculator__checkbox"
+        className="settings__checkbox"
         checked={displayAllOnPlot}
         onChange={() => setDisplayAllOnPlot(!displayAllOnPlot)}
       />
-      <label htmlFor="displayAllFanResults" className="calculator__label">
+      <label htmlFor="displayAllFanResults" className="settings__label">
         Показывать результаты расчёта для всех вентиляторов:
       </label>
       <input
         type="checkbox"
         id="displayAllFanResults"
-        className="calculator__checkbox"
+        className="settings__checkbox"
         checked={displayAllFanResults}
         onChange={() => setDisplayAllFanResults(!displayAllFanResults)}
       />
-      <label htmlFor="displayLog" className="calculator__label">
+      <label htmlFor="displayLog" className="settings__label">
         Показать/скрыть лог расчёта:
       </label>
       <input
         type="checkbox"
         id="displayLog"
-        className="calculator__checkbox"
+        className="settings__checkbox"
         checked={displayLog}
         onChange={() => setDisplayLog(!displayLog)}
       />

@@ -17,6 +17,10 @@
   opacity: .7;
 }
 
+.burger__button:focus {
+  outline: 0;
+}
+
 .burger__items {
   position: absolute;
   top: 40px;

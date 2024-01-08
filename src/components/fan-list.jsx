@@ -53,7 +53,7 @@ function FanList({
               <img src='../images/zfr.png' alt="Изображение крышного вентилятора" className="fan-list__image" />
               <div className="fan-list__wrapper">
                 <span className="fan-list__fan-name">{result.fanName}</span>
-                <span className="fan-list__result">{` + ${result.flowDeviation}%`}</span>
+                <span className="fan-list__result">{`+ ${result.flowDeviation}%`}</span>
               </div>
             </li>
           ))

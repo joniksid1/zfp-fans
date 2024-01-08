@@ -18,41 +18,19 @@
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 20px;
-  max-width: 320px;
+  max-width: 360px;
   min-height: 240px;
   width: 100%;
   border-radius: 6px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.modal:focus {
+  outline: 0;
+}
+
 .modal__header {
   margin-top: 0;
-}
-
-.modal__button {
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  min-height: 40px;
-  background-color: #504f4f;
-  border: 0;
-  border-radius: 4px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: normal;
-  transition: opacity .3s ease-in-out;
-}
-
-.modal__button:hover {
-  opacity: .85;
-}
-
-.modal__button:disabled {
-  background: transparent;
-  color: rgba(0, 0, 0, .2);
-  border: 1px solid rgba(0, 0, 0, .2);
 }
 
 .modal__close-button {
@@ -73,4 +51,85 @@
 
 .modal__close-button:hover {
   opacity: .6;
+}
+
+.modal__close-button:focus {
+  outline: 0;
+}
+
+.modal__label {
+  position: relative;
+  cursor: pointer;
+  display: block;
+  padding-left: 20px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .3s ease-in-out;
+}
+
+.modal__checkbox {
+  display: none;
+}
+
+.modal__label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  min-height: 35px;
+  box-shadow: 0 0 0 2px #bdbdbd;
+  background-color: transparent;
+  border-radius: 5px;
+  box-sizing: border-box;
+  transition: all .3s ease-in-out;
+}
+
+.modal__checkbox:checked + .modal__label::before {
+  background-color: rgba(80, 79, 79, .3);
+}
+
+.modal__checkbox:checked + .modal__label {
+  color: black;
+}
+
+.modal__mounting-cups-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  margin-left: 20px;
+}
+
+.modal__checkbox + .modal__label {
+  margin-top: 10px;
+}
+
+.modal__button {
+  cursor: pointer;
+  padding: 0;
+  margin: 10px 0 0 0;
+  width: 100%;
+  min-height: 40px;
+  background-color: #504f4f;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  transition: opacity .3s ease-in-out;
+}
+
+.modal__button:hover {
+  opacity: .85;
+}
+
+.modal__button:disabled {
+  background: transparent;
+  color: rgba(0, 0, 0, .2);
+  border: 1px solid rgba(0, 0, 0, .2);
 }

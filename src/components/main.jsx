@@ -109,7 +109,7 @@ function Main({ view }) {
         ]);
         setAllFanResults((prevResults) => [
           ...prevResults,
-          { fanName, result: resultMessage, flowDeviation },
+          { fanName, result: resultMessage, flowDeviation: `+${flowDeviation}` },
         ]);
       } else {
         setAllFanResults((prevResults) => [

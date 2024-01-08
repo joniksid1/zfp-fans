@@ -8,13 +8,17 @@ function FanList({
   setSelectedFan,
   setHoveredFan,
   displayAllFanResults,
+  setSelectedOptions,
+  setResultFanName,
+  setResultSystemName,
+  handleResultAirParams,
 }) {
 
   const handleFanClick = (fanName) => {
     setSelectedFan(fanName);
   };
 
-  const handleCloseModal = () => {
+  const closeModalWindow = () => {
     setSelectedFan(null);
   };
 
@@ -59,7 +63,15 @@ function FanList({
           ))
         }
       </ul>
-      <CustomModal isOpen={selectedFan !== null || undefined} onRequestClose={handleCloseModal} fanName={selectedFan} />
+      <CustomModal
+        isOpen={selectedFan !== null || undefined}
+        closeModalWindow={closeModalWindow}
+        fanName={selectedFan}
+        setSelectedOptions={setSelectedOptions}
+        setResultFanName={setResultFanName}
+        setResultSystemName={setResultSystemName}
+        handleResultAirParams={handleResultAirParams}
+      />
     </div>
   );
 }
@@ -81,6 +93,10 @@ FanList.propTypes = {
   selectedFan: PropTypes.string,
   setHoveredFan: PropTypes.func,
   displayAllFanResults: PropTypes.bool,
+  setSelectedOptions: PropTypes.func,
+  setResultFanName: PropTypes.func,
+  setResultSystemName: PropTypes.func,
+  handleResultAirParams: PropTypes.func,
 };
 
 export default FanList;

@@ -2,7 +2,7 @@ import logo from '../images/header-logo.svg';
 import BurgerMenu from './menu';
 import PropTypes from 'prop-types';
 
-function Header({ switchToSettings, switchToForm, switchToInfo, view }) {
+function Header({ switchToSettings, switchToForm, switchToInfo, switchToResults, view }) {
 
   return (
     <header className="header">
@@ -15,9 +15,13 @@ function Header({ switchToSettings, switchToForm, switchToInfo, view }) {
         <h1 className="header__title" aria-label="Расчёт вентилятора">
           {(view === 'form')
             ? 'Расчёт крышного вентилятора'
-            : (view === 'settings')
-              ? 'Дополнительные настройки'
-              : (view === 'info') ? 'Информация' : 'Расчёт крышного вентилятора'
+            :
+            (view === 'settings') ? 'Дополнительные настройки'
+              :
+              (view === 'info') ? 'Информация'
+                :
+                (view === 'results') ? 'Результаты расчёта'
+                  : 'Расчёт крышного вентилятора'
           }
         </h1>
       </div>
@@ -25,6 +29,7 @@ function Header({ switchToSettings, switchToForm, switchToInfo, view }) {
         switchToSettings={switchToSettings}
         switchToForm={switchToForm}
         switchToInfo={switchToInfo}
+        switchToResults={switchToResults}
       />
     </header>
   );
@@ -34,6 +39,7 @@ Header.propTypes = {
   switchToSettings: PropTypes.func,
   switchToForm: PropTypes.func,
   switchToInfo: PropTypes.func,
+  switchToResults: PropTypes.func,
   view: PropTypes.string,
 };
 

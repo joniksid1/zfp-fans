@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-const BurgerMenu = ({ switchToSettings, switchToForm, switchToInfo }) => {
+const BurgerMenu = ({ switchToSettings, switchToForm, switchToInfo, switchToResults }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -44,6 +44,7 @@ const BurgerMenu = ({ switchToSettings, switchToForm, switchToInfo }) => {
             <a className='burger__link' onClick={switchToInfo}>Информация</a>
             <a className='burger__link' onClick={switchToSettings}>Настройки</a>
             <a className='burger__link' onClick={switchToForm}>Расчёт</a>
+            <a className='burger__link' onClick={switchToResults}>Результаты расчёта</a>
         </div>
       )}
     </div>
@@ -54,6 +55,7 @@ BurgerMenu.propTypes = {
   switchToSettings: PropTypes.func,
   switchToForm: PropTypes.func,
   switchToInfo: PropTypes.func,
+  switchToResults: PropTypes.func,
 };
 
 export default BurgerMenu;

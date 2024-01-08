@@ -25,6 +25,10 @@ function App() {
     setView('form');
   };
 
+  const switchToResults = () => {
+    navigate('/results');
+    setView('results');
+  };
 
   useEffect(() => {
     navigate('/');
@@ -37,6 +41,7 @@ function App() {
         switchToSettings={switchToSettings}
         switchToForm={switchToForm}
         switchToInfo={switchToInfo}
+        switchToResults={switchToResults}
         view={view}
       />
       <Main view={view} />

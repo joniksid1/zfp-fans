@@ -1,8 +1,17 @@
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-function CustomModal({ isOpen, onRequestClose, fanName }) {
+function CustomModal({
+  isOpen,
+  closeModalWindow,
+  fanName,
+  setSelectedOptions,
+  setResultFanName,
+  setResultSystemName,
+  handleResultAirParams,
+}) {
+  const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
   const [selectFlatRoofSocket, setSelectFlatRoofSocket] = useState(false);
   const [selectPitchedRoofSocket, setSelectPitchedRoofSocket] = useState(false);
@@ -11,6 +20,10 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
   const [selectFlexibleConnector, setSelectFlexibleConnector] = useState(false);
   const [selectFlange, setSelectFlange] = useState(false);
   const [selectRegulator, setSelectRegulator] = useState(false);
+
+  const systemNameValueChange = (e) => {
+    setSystemNameValue(e.target.value);
+  };
 
   // Сброс состояний инпутов при закрытии модального окна
 
@@ -26,24 +39,42 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
   };
 
   const handleCloseModal = () => {
-    // Вызываем сброс состояния при закрытии модального окна
-    resetState();
-    onRequestClose();
-  };
 
-  useEffect(() => {
-    console.log('Состояние чекбокса монтажного стакана для плоской кровли:', selectFlatRoofSocket);
-    console.log('Состояние чекбокса монтажного стакана для скатной кровли:', selectPitchedRoofSocket);
-  }, [selectFlatRoofSocket, selectPitchedRoofSocket]);
+    // Вызываем сброс состояний при закрытии модального окна
+
+    resetState();
+    setSystemNameValue('');
+
+    // Закрываем модальное окно
+
+    closeModalWindow();
+  };
 
   const handleSocketsDisplay = () => {
     setDisplayAllSockets(!displayAllSockets);
 
     // Сбрасываем вложенные инпуты, если скрывается меню выбора монтажных стаканов
+
     setSelectFlatRoofSocket(false);
     setSelectPitchedRoofSocket(false);
     setSelectSlantRoofSocketSilencer(false);
   };
+
+  const handleModalConfirm = () => {
+    setResultSystemName(systemNameValue);
+    setResultFanName(fanName);
+    setSelectedOptions({
+      selectFlatRoofSocket,
+      selectPitchedRoofSocket,
+      selectSlantRoofSocketSilencer,
+      selectBackDraftDamper,
+      selectFlexibleConnector,
+      selectFlange,
+      selectRegulator,
+    });
+    handleResultAirParams();
+    handleCloseModal();
+  }
 
   return (
     <Modal
@@ -55,6 +86,19 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
     >
       <button className='modal__close-button' onClick={handleCloseModal}></button>
       <h2 className='modal__header'>{fanName}</h2>
+      <label htmlFor="systemName" className="modal__label modal__label_type_system-name">
+        Название системы:
+      </label>
+      <input
+        name="systemName"
+        type="text"
+        id="systemName"
+        className="modal__input"
+        required=""
+        maxLength={20}
+        value={systemNameValue ?? ''}
+        onChange={systemNameValueChange}
+      />
       <input
         type="checkbox"
         id="selectSockets"
@@ -62,7 +106,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
         checked={displayAllSockets}
         onChange={handleSocketsDisplay}
       />
-      <label htmlFor="selectSockets" className="modal__label">
+      <label htmlFor="selectSockets" className="modal__label modal__label_type_option">
         Монтажный стакан:
       </label>
       {
@@ -76,7 +120,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
               checked={selectFlatRoofSocket}
               onChange={() => setSelectFlatRoofSocket(!selectFlatRoofSocket)}
             />
-            <label htmlFor="selectFlatRoofSocket" className="modal__label">
+            <label htmlFor="selectFlatRoofSocket" className="modal__label modal__label_type_option">
               Для плоской кровли
             </label>
             <input
@@ -86,7 +130,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
               checked={selectPitchedRoofSocket}
               onChange={() => setSelectPitchedRoofSocket(!selectPitchedRoofSocket)}
             />
-            <label htmlFor="selectPitchedRoofSocket" className="modal__label">
+            <label htmlFor="selectPitchedRoofSocket" className="modal__label modal__label_type_option">
               Для наклонной кровли
             </label>
             <input
@@ -96,7 +140,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
               checked={selectSlantRoofSocketSilencer}
               onChange={() => setSelectSlantRoofSocketSilencer(!selectSlantRoofSocketSilencer)}
             />
-            <label htmlFor="selectSlantRoofSocketSilencer" className="modal__label">
+            <label htmlFor="selectSlantRoofSocketSilencer" className="modal__label modal__label_type_option">
               Для наклонной кровли с шумоглушением
             </label>
           </div>
@@ -110,7 +154,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
         checked={selectBackDraftDamper}
         onChange={() => setSelectBackDraftDamper(!selectBackDraftDamper)}
       />
-      <label htmlFor="selectBackDraftDamper" className="modal__label">
+      <label htmlFor="selectBackDraftDamper" className="modal__label modal__label_type_option">
         Обратный клапан
       </label>
       <input
@@ -120,7 +164,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
         checked={selectFlexibleConnector}
         onChange={() => setSelectFlexibleConnector(!selectFlexibleConnector)}
       />
-      <label htmlFor="selectFlexibleConnector" className="modal__label">
+      <label htmlFor="selectFlexibleConnector" className="modal__label modal__label_type_option">
         Гибкая вставка
       </label>
       <input
@@ -130,7 +174,7 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
         checked={selectFlange}
         onChange={() => setSelectFlange(!selectFlange)}
       />
-      <label htmlFor="selectFlange" className="modal__label">
+      <label htmlFor="selectFlange" className="modal__label modal__label_type_option">
         Фланец
       </label>
       <input
@@ -140,18 +184,22 @@ function CustomModal({ isOpen, onRequestClose, fanName }) {
         checked={selectRegulator}
         onChange={() => setSelectRegulator(!selectRegulator)}
       />
-      <label htmlFor="selectRegulator" className="modal__label">
+      <label htmlFor="selectRegulator" className="modal__label modal__label_type_option">
         Регулятор скорости
       </label>
-      <button className='modal__button' onClick={onRequestClose}>Сохранить(ещё нет)</button>
+      <button className='modal__button' onClick={handleModalConfirm}>Сохранить</button>
     </Modal>
   );
 }
 
 CustomModal.propTypes = {
   isOpen: PropTypes.bool,
-  onRequestClose: PropTypes.func,
+  closeModalWindow: PropTypes.func,
   fanName: PropTypes.string,
+  setSelectedOptions: PropTypes.func,
+  setResultFanName: PropTypes.func,
+  setResultSystemName: PropTypes.func,
+  handleResultAirParams: PropTypes.func,
 };
 
 export default CustomModal

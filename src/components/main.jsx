@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import * as dataPoints from '../utils/chart-data-points';
 import Info from './info';
 import Calculator from './calculator';
+import CalculationResults from './calculation-results';
 import PropTypes from 'prop-types';
 import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
 
@@ -12,6 +13,11 @@ function Main({ view }) {
   const [scale, setScale] = useState(1);
   const [correctFanResults, setCorrectFanResults] = useState([]);
   const [allFanResults, setAllFanResults] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [resultFanName, setResultFanName] = useState('');
+  const [resultSystemName, setResultSystemName] = useState('');
+  const [resultAirFlow, setResultAirFlow] = useState('');
+  const [resultPressureValue, setResultPressureValue] = useState('');
   const [logMessages, setLogMessages] = useState([]);
   const [newPoint, setNewPoint] = useState(null);
   const [perpendicularLines, setPerpendicularLines] = useState([]);
@@ -20,6 +26,13 @@ function Main({ view }) {
   const [displayLog, setDisplayLog] = useState(true);
 
   const plotRef = useRef(null);
+
+  // Добавление расхода воздуха и давления в результат расчёта
+
+  const handleResultAirParams = () => {
+    setResultAirFlow(flowRateValue);
+    setResultPressureValue(staticPressureValue);
+  }
 
   // Обработка инпутов ввода расхода воздуа и давления
 
@@ -101,7 +114,7 @@ function Main({ view }) {
     const staticPressureDeviation = Math.round((interpolatedY - yValue) / yValue * 100);
 
     if (xValue <= maxXValue && xValue > 0) {
-      if (yValue <= interpolatedY ) {
+      if (yValue <= interpolatedY) {
         resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу + ${flowDeviation} %, отклонение по напору + ${staticPressureDeviation} %`;
         setCorrectFanResults((prevResults) => [
           ...prevResults,
@@ -218,6 +231,21 @@ function Main({ view }) {
             displayLog={displayLog}
             setDisplayLog={setDisplayLog}
             allFanResults={allFanResults}
+            setSelectedOptions={setSelectedOptions}
+            setResultFanName={setResultFanName}
+            setResultSystemName={setResultSystemName}
+            setResultAirFlow={setResultAirFlow}
+            setResultPressureValue={setResultPressureValue}
+            handleResultAirParams={handleResultAirParams}
+          />
+        } />
+        <Route path="/results" element={
+          <CalculationResults
+            resultSystemName={resultSystemName}
+            resultFanName={resultFanName}
+            resultAirFlow={resultAirFlow}
+            resultPressureValue={resultPressureValue}
+            selectedOptions={selectedOptions}
           />
         } />
       </Routes>

@@ -23,10 +23,7 @@ function Calculator({
   displayLog,
   setDisplayLog,
   allFanResults,
-  setSelectedOptions,
-  setResultFanName,
-  setResultSystemName,
-  handleResultAirParams,
+  addResultsToHistory,
 }) {
 
   // Выбор вентилятора при наведении и по клику. Наведение setHoveredFan используется для изменение цвета линии графика соответствующего вентилятора.
@@ -112,10 +109,9 @@ function Calculator({
                 setSelectedFan={setSelectedFan}
                 setHoveredFan={setHoveredFan}
                 displayAllFanResults={displayAllFanResults}
-                setSelectedOptions={setSelectedOptions}
-                setResultFanName={setResultFanName}
-                setResultSystemName={setResultSystemName}
-                handleResultAirParams={handleResultAirParams}
+                flowRateValue={flowRateValue}
+                staticPressureValue={staticPressureValue}
+                addResultsToHistory={addResultsToHistory}
               />
             )}
           </form>
@@ -144,10 +140,7 @@ Calculator.propTypes = {
   allFanResults: PropTypes.array,
   displayLog: PropTypes.bool,
   setDisplayLog: PropTypes.func,
-  setSelectedOptions: PropTypes.func,
-  setResultFanName: PropTypes.func,
-  setResultSystemName: PropTypes.func,
-  handleResultAirParams: PropTypes.func,
+  addResultsToHistory: PropTypes.func,
 };
 
 export default Calculator;

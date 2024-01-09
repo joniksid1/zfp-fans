@@ -6,15 +6,14 @@ function CustomModal({
   isOpen,
   closeModalWindow,
   fanName,
-  setSelectedOptions,
-  setResultFanName,
-  setResultSystemName,
-  handleResultAirParams,
+  flowRateValue,
+  staticPressureValue,
+  addResultsToHistory,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
   const [selectFlatRoofSocket, setSelectFlatRoofSocket] = useState(false);
-  const [selectPitchedRoofSocket, setSelectPitchedRoofSocket] = useState(false);
+  const [selectFlatRoofSocketSilencer, setSelectFlatRoofSocketSilencer] = useState(false);
   const [selectSlantRoofSocketSilencer, setSelectSlantRoofSocketSilencer] = useState(false);
   const [selectBackDraftDamper, setSelectBackDraftDamper] = useState(false);
   const [selectFlexibleConnector, setSelectFlexibleConnector] = useState(false);
@@ -30,7 +29,7 @@ function CustomModal({
   const resetState = () => {
     setDisplayAllSockets(false);
     setSelectFlatRoofSocket(false);
-    setSelectPitchedRoofSocket(false);
+    setSelectFlatRoofSocketSilencer(false);
     setSelectSlantRoofSocketSilencer(false);
     setSelectBackDraftDamper(false);
     setSelectFlexibleConnector(false);
@@ -56,23 +55,26 @@ function CustomModal({
     // Сбрасываем вложенные инпуты, если скрывается меню выбора монтажных стаканов
 
     setSelectFlatRoofSocket(false);
-    setSelectPitchedRoofSocket(false);
+    setSelectFlatRoofSocketSilencer(false);
     setSelectSlantRoofSocketSilencer(false);
   };
 
   const handleModalConfirm = () => {
-    setResultSystemName(systemNameValue);
-    setResultFanName(fanName);
-    setSelectedOptions({
-      selectFlatRoofSocket,
-      selectPitchedRoofSocket,
-      selectSlantRoofSocketSilencer,
-      selectBackDraftDamper,
-      selectFlexibleConnector,
-      selectFlange,
-      selectRegulator,
+    addResultsToHistory({
+      systemNameValue,
+      fanName,
+      flowRateValue,
+      staticPressureValue,
+      selectedOptions: {
+        selectFlatRoofSocket,
+        selectFlatRoofSocketSilencer,
+        selectSlantRoofSocketSilencer,
+        selectBackDraftDamper,
+        selectFlexibleConnector,
+        selectFlange,
+        selectRegulator,
+      },
     });
-    handleResultAirParams();
     handleCloseModal();
   }
 
@@ -127,11 +129,11 @@ function CustomModal({
               type="checkbox"
               id="selectPitchedRoofSocket"
               className="modal__checkbox"
-              checked={selectPitchedRoofSocket}
-              onChange={() => setSelectPitchedRoofSocket(!selectPitchedRoofSocket)}
+              checked={selectFlatRoofSocketSilencer}
+              onChange={() => setSelectFlatRoofSocketSilencer(!selectFlatRoofSocketSilencer)}
             />
             <label htmlFor="selectPitchedRoofSocket" className="modal__label modal__label_type_option">
-              Для наклонной кровли
+              Для плоской кровли с шумоглушением
             </label>
             <input
               type="checkbox"
@@ -196,10 +198,9 @@ CustomModal.propTypes = {
   isOpen: PropTypes.bool,
   closeModalWindow: PropTypes.func,
   fanName: PropTypes.string,
-  setSelectedOptions: PropTypes.func,
-  setResultFanName: PropTypes.func,
-  setResultSystemName: PropTypes.func,
-  handleResultAirParams: PropTypes.func,
+  flowRateValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  staticPressureValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  addResultsToHistory: PropTypes.func,
 };
 
 export default CustomModal

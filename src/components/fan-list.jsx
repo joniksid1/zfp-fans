@@ -8,10 +8,9 @@ function FanList({
   setSelectedFan,
   setHoveredFan,
   displayAllFanResults,
-  setSelectedOptions,
-  setResultFanName,
-  setResultSystemName,
-  handleResultAirParams,
+  flowRateValue,
+  staticPressureValue,
+  addResultsToHistory,
 }) {
 
   const handleFanClick = (fanName) => {
@@ -67,10 +66,9 @@ function FanList({
         isOpen={selectedFan !== null || undefined}
         closeModalWindow={closeModalWindow}
         fanName={selectedFan}
-        setSelectedOptions={setSelectedOptions}
-        setResultFanName={setResultFanName}
-        setResultSystemName={setResultSystemName}
-        handleResultAirParams={handleResultAirParams}
+        flowRateValue={flowRateValue}
+        staticPressureValue={staticPressureValue}
+        addResultsToHistory={addResultsToHistory}
       />
     </div>
   );
@@ -93,10 +91,9 @@ FanList.propTypes = {
   selectedFan: PropTypes.string,
   setHoveredFan: PropTypes.func,
   displayAllFanResults: PropTypes.bool,
-  setSelectedOptions: PropTypes.func,
-  setResultFanName: PropTypes.func,
-  setResultSystemName: PropTypes.func,
-  handleResultAirParams: PropTypes.func,
+  flowRateValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  staticPressureValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  addResultsToHistory: PropTypes.func,
 };
 
 export default FanList;

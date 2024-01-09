@@ -13,11 +13,7 @@ function Main({ view }) {
   const [scale, setScale] = useState(1);
   const [correctFanResults, setCorrectFanResults] = useState([]);
   const [allFanResults, setAllFanResults] = useState([]);
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [resultFanName, setResultFanName] = useState('');
-  const [resultSystemName, setResultSystemName] = useState('');
-  const [resultAirFlow, setResultAirFlow] = useState('');
-  const [resultPressureValue, setResultPressureValue] = useState('');
+  const [resultsHistory, setResultsHistory] = useState([]);
   const [logMessages, setLogMessages] = useState([]);
   const [newPoint, setNewPoint] = useState(null);
   const [perpendicularLines, setPerpendicularLines] = useState([]);
@@ -27,12 +23,9 @@ function Main({ view }) {
 
   const plotRef = useRef(null);
 
-  // Добавление расхода воздуха и давления в результат расчёта
-
-  const handleResultAirParams = () => {
-    setResultAirFlow(flowRateValue);
-    setResultPressureValue(staticPressureValue);
-  }
+  const addResultsToHistory = (newResult) => {
+    setResultsHistory(prevHistory => [newResult, ...prevHistory]);
+  };
 
   // Обработка инпутов ввода расхода воздуа и давления
 
@@ -231,21 +224,12 @@ function Main({ view }) {
             displayLog={displayLog}
             setDisplayLog={setDisplayLog}
             allFanResults={allFanResults}
-            setSelectedOptions={setSelectedOptions}
-            setResultFanName={setResultFanName}
-            setResultSystemName={setResultSystemName}
-            setResultAirFlow={setResultAirFlow}
-            setResultPressureValue={setResultPressureValue}
-            handleResultAirParams={handleResultAirParams}
+            addResultsToHistory={addResultsToHistory}
           />
         } />
         <Route path="/results" element={
           <CalculationResults
-            resultSystemName={resultSystemName}
-            resultFanName={resultFanName}
-            resultAirFlow={resultAirFlow}
-            resultPressureValue={resultPressureValue}
-            selectedOptions={selectedOptions}
+            resultsHistory={resultsHistory}
           />
         } />
       </Routes>

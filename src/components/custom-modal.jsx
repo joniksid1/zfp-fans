@@ -9,6 +9,7 @@ function CustomModal({
   flowRateValue,
   staticPressureValue,
   addResultsToHistory,
+  switchToResults,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
@@ -76,6 +77,7 @@ function CustomModal({
       },
     });
     handleCloseModal();
+    switchToResults();
   }
 
   return (
@@ -201,6 +203,7 @@ CustomModal.propTypes = {
   flowRateValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   staticPressureValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   addResultsToHistory: PropTypes.func,
+  switchToResults: PropTypes.func,
 };
 
 export default CustomModal

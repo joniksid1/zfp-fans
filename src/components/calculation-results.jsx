@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
+import { getDataSheet } from '../utils/api';
 
 function CalculationResults({
   resultsHistory,
+  setResultsHistory,
+  switchToForm,
 }) {
   const getComponentName = (option) => {
     const componentNames = {
@@ -17,9 +20,69 @@ function CalculationResults({
     return componentNames[option] || option;
   };
 
+  const downloadDataSheet = async () => {
+    try {
+      const promises = resultsHistory.map(async (historyItem) => {
+        try {
+          const response = await getDataSheet(historyItem);
+
+          const contentType = response.headers?.get('content-type');
+
+          if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+            // Если тип контента - xlsx, создаем BLOB и возвращаем его
+            const blob = await response.blob();
+
+            // Создаем ссылку и автоматически запускаем скачивание
+            const fileURL = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = fileURL;
+            a.download = `${historyItem.systemNameValue}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+
+            // Очищаем ссылку после скачивания
+            URL.revokeObjectURL(fileURL);
+          } else {
+            // Если тип контента не xlsx, обрабатываем его как текст
+            const text = await response.text();
+            console.log('Текстовые данные', text);
+          }
+        } catch (error) {
+          console.error('Ошибка при создании файла', error);
+        }
+      });
+
+      // Ждем завершения всех запросов
+      await Promise.all(promises);
+      console.log('Все файлы успешно созданы');
+    } catch (error) {
+      console.error('Ошибка при создании файлов', error);
+    }
+  };
+
+  const clearHistory = () => {
+    setResultsHistory([]);
+  };
+
   return (
     <div className="calculation-results">
-      <h2 className="calculation-results__header">История подбора</h2>
+      <div className="calculation-results__wrapper">
+        <button className="calculation-results__button" onClick={clearHistory}>
+          Очистить историю
+        </button>
+        <h2 className="calculation-results__header">История подбора</h2>
+        <button className="calculation-results__button" onClick={switchToForm}>
+          Вернуться
+          <br />
+          к расчёту
+        </button>
+        <button
+          className="calculation-results__button"
+          onClick={() => downloadDataSheet()}
+        >
+          Скачать PDF
+        </button>
+      </div>
       {resultsHistory.length > 0 ? (
         <div className="calculation-results__history">
           <table className="calculation-results__table">
@@ -72,6 +135,8 @@ CalculationResults.propTypes = {
       selectedOptions: PropTypes.object,
     })
   ),
+  setResultsHistory: PropTypes.func,
+  switchToForm: PropTypes.func,
 };
 
 export default CalculationResults;

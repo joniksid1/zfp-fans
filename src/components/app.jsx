@@ -44,7 +44,11 @@ function App() {
         switchToResults={switchToResults}
         view={view}
       />
-      <Main view={view} />
+      <Main
+        view={view}
+        switchToForm={switchToForm}
+        switchToResults={switchToResults}
+      />
       <Footer />
     </>
   )

@@ -1,0 +1,29 @@
+.log__title {
+  margin: 0;
+  padding: 30px 0 30px 0;
+  font-size: 24px;
+}
+
+.log__wrapper {
+  padding: 10px 30px;
+  position: relative;
+  border-radius: 5px;
+  background-color: #fff;
+  min-height: 40px;
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.log__button {
+  position: sticky;
+  top: 10px;
+  margin: 0px 0px 0px 1100px;
+  width: 100px;
+  background: rgba(220,220,220, .5);
+  color: #504f4f;
+}
+
+.log__data {
+  margin: 0;
+  text-align: left;
+}

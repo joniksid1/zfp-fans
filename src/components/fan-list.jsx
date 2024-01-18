@@ -11,6 +11,7 @@ function FanList({
   flowRateValue,
   staticPressureValue,
   addResultsToHistory,
+  switchToResults,
 }) {
 
   const handleFanClick = (fanName) => {
@@ -69,6 +70,7 @@ function FanList({
         flowRateValue={flowRateValue}
         staticPressureValue={staticPressureValue}
         addResultsToHistory={addResultsToHistory}
+        switchToResults={switchToResults}
       />
     </div>
   );
@@ -94,6 +96,7 @@ FanList.propTypes = {
   flowRateValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   staticPressureValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   addResultsToHistory: PropTypes.func,
+  switchToResults: PropTypes.func,
 };
 
 export default FanList;

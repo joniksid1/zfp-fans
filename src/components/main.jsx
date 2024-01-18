@@ -7,7 +7,11 @@ import CalculationResults from './calculation-results';
 import PropTypes from 'prop-types';
 import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
 
-function Main({ view }) {
+function Main({
+  view,
+  switchToForm,
+  switchToResults,
+}) {
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
@@ -225,11 +229,14 @@ function Main({ view }) {
             setDisplayLog={setDisplayLog}
             allFanResults={allFanResults}
             addResultsToHistory={addResultsToHistory}
+            switchToResults={switchToResults}
           />
         } />
         <Route path="/results" element={
           <CalculationResults
             resultsHistory={resultsHistory}
+            setResultsHistory={setResultsHistory}
+            switchToForm={switchToForm}
           />
         } />
       </Routes>
@@ -259,6 +266,8 @@ function Main({ view }) {
 
 Main.propTypes = {
   view: PropTypes.string,
+  switchToForm: PropTypes.func,
+  switchToResults: PropTypes.func,
 };
 
 

@@ -10,6 +10,7 @@ function CustomModal({
   staticPressureValue,
   addResultsToHistory,
   switchToResults,
+  generatePlotImage,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
@@ -60,24 +61,33 @@ function CustomModal({
     setSelectSlantRoofSocketSilencer(false);
   };
 
-  const handleModalConfirm = () => {
-    addResultsToHistory({
-      systemNameValue,
-      fanName,
-      flowRateValue,
-      staticPressureValue,
-      selectedOptions: {
-        selectFlatRoofSocket,
-        selectFlatRoofSocketSilencer,
-        selectSlantRoofSocketSilencer,
-        selectBackDraftDamper,
-        selectFlexibleConnector,
-        selectFlange,
-        selectRegulator,
-      },
-    });
-    handleCloseModal();
-    switchToResults();
+  const handleModalConfirm = async () => {
+    try {
+      const plotImageResult = await generatePlotImage();
+
+      addResultsToHistory({
+        systemNameValue,
+        fanName,
+        flowRateValue,
+        staticPressureValue,
+        selectedOptions: {
+          selectFlatRoofSocket,
+          selectFlatRoofSocketSilencer,
+          selectSlantRoofSocketSilencer,
+          selectBackDraftDamper,
+          selectFlexibleConnector,
+          selectFlange,
+          selectRegulator,
+        },
+        plotImage: plotImageResult,
+      });
+
+      handleCloseModal();
+      switchToResults();
+    } catch (error) {
+      console.error("Error generating plot image:", error);
+      // Обработка ошибок при генерации изображения
+    }
   }
 
   return (
@@ -204,6 +214,7 @@ CustomModal.propTypes = {
   staticPressureValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   addResultsToHistory: PropTypes.func,
   switchToResults: PropTypes.func,
+  generatePlotImage: PropTypes.func,
 };
 
 export default CustomModal

@@ -37,7 +37,6 @@ function CustomPlot({
   const updatedDataSets = useMemo(() => {
     return chartDataSets.map((dataset) => {
       const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
-
       const color = getLineColor(dataset.name);
 
       if (displayAllOnPlot || fanResult) {

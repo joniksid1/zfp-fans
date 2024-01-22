@@ -66,11 +66,11 @@ function CalculationResults({
 
   return (
     <div className="calculation-results">
+      <h2 className="calculation-results__header">История подбора</h2>
       <div className="calculation-results__wrapper">
         <button className="calculation-results__button" onClick={clearHistory}>
           Очистить историю
         </button>
-        <h2 className="calculation-results__header">История подбора</h2>
         <button className="calculation-results__button" onClick={switchToForm}>
           Вернуться
           <br />

@@ -3,6 +3,7 @@ import Settings from './settings';
 import PropTypes from 'prop-types';
 import FanList from './fan-list';
 import { useState } from 'react';
+import html2canvas from 'html2canvas';
 
 function Calculator({
   plotRef,
@@ -34,6 +35,13 @@ function Calculator({
   const [hoveredFan, setHoveredFan] = useState(null);
   const [displayAllOnPlot, setDisplayAllOnPlot] = useState(false);
   const [displayAllFanResults, setDisplayAllFanResults] = useState(false);
+
+  // Создаем изображение из компонента
+  const generatePlotImage = async () => {
+    const plotElement = document.querySelector('.chart');
+    const canvas = await html2canvas(plotElement);
+    return canvas.toDataURL('image/png');
+  };
 
   return (
     <section className="calculator">
@@ -114,6 +122,7 @@ function Calculator({
                 staticPressureValue={staticPressureValue}
                 addResultsToHistory={addResultsToHistory}
                 switchToResults={switchToResults}
+                generatePlotImage={generatePlotImage}
               />
             )}
           </form>

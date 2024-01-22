@@ -182,6 +182,44 @@ function Main({
     }
   }
 
+  // Приводим в соответствие название вентиляторов (из-за переменных, временное решение)
+
+  function formatFanName(rawName) {
+    if (rawName === 'ZFR_1_9_2E') {
+      return 'ZFR 1,9-2E';
+    } else if (rawName === 'ZFR_2_25_2E') {
+      return 'ZFR 2,25-2E';
+    } else if (rawName === 'ZFR_2_5_2E') {
+      return 'ZFR 2,5-2E';
+    } else if (rawName === 'ZFR_2_8_2E') {
+      return 'ZFR 2,8-2E';
+    } else if (rawName === 'ZFR_3_1_4E') {
+      return 'ZFR 3,1-4E';
+    } else if (rawName === 'ZFR_3_1_4D') {
+      return 'ZFR 3,1-4D';
+    } else if (rawName === 'ZFR_3_5_4E') {
+      return 'ZFR 3,5-4E';
+    } else if (rawName === 'ZFR_3_5_4D') {
+      return 'ZFR 3,5-4D';
+    } else if (rawName === 'ZFR_4_4E') {
+      return 'ZFR 4-4E';
+    } else if (rawName === 'ZFR_4_4D') {
+      return 'ZFR 4-4D';
+    } else if (rawName === 'ZFR_4_5_4E') {
+      return 'ZFR 4,5-4E';
+    } else if (rawName === 'ZFR_4_5_4D') {
+      return 'ZFR 4,5-4D';
+    } else if (rawName === 'ZFR_5_4D') {
+      return 'ZFR 5-4D';
+    } else if (rawName === 'ZFR_5_6_4D') {
+      return 'ZFR 5,6-4D';
+    } else if (rawName === 'ZFR_6_3_4D') {
+      return 'ZFR 6,3-4D';
+    } else {
+      return rawName;
+    }
+  }
+
   // Вызывается в по нажатию на "Рассчитать"
 
   const handleSubmit = (e) => {
@@ -192,7 +230,8 @@ function Main({
     setCorrectFanResults([]);
 
     for (let i = 0; i < keys.length; i++) {
-      calculateFan(dataPoints[keys[i]], keys[i]);
+      const formattedName = formatFanName(keys[i]);
+      calculateFan(dataPoints[keys[i]], formattedName);
     }
 
     setPointWithLinesOnChart();

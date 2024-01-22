@@ -12,6 +12,7 @@ function FanList({
   staticPressureValue,
   addResultsToHistory,
   switchToResults,
+  generatePlotImage,
 }) {
 
   const handleFanClick = (fanName) => {
@@ -71,6 +72,7 @@ function FanList({
         staticPressureValue={staticPressureValue}
         addResultsToHistory={addResultsToHistory}
         switchToResults={switchToResults}
+        generatePlotImage={generatePlotImage}
       />
     </div>
   );
@@ -97,6 +99,7 @@ FanList.propTypes = {
   staticPressureValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   addResultsToHistory: PropTypes.func,
   switchToResults: PropTypes.func,
+  generatePlotImage: PropTypes.func,
 };
 
 export default FanList;

@@ -29,7 +29,7 @@ function CalculationResults({
           const contentType = response.headers?.get('content-type');
 
           if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            // Если тип контента - xlsx, создаем BLOB и возвращаем его
+            // Преобразовываем ответ в Blob
             const blob = await response.blob();
 
             // Создаем ссылку и автоматически запускаем скачивание

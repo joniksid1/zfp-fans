@@ -9,6 +9,7 @@ function CustomPlot({
   calculatedLine,
   perpendicularLines,
   scale,
+  selectedFan,
   hoveredFan,
   correctFanResults,
   displayAllOnPlot,
@@ -16,11 +17,12 @@ function CustomPlot({
   const [revision, setRevision] = useState(0);
 
   // Выбор цвета линии в зависимости от наведения на список вентиляторов в результате расчёта
-
   const getLineColor = useCallback(
     (fanName) => {
-      if (hoveredFan && fanName === hoveredFan) {
-        return 'red';
+      if (selectedFan && fanName === selectedFan) {
+        return 'red'; // Если вентилятор выбран, цвет - красный
+      } else if (hoveredFan && fanName === hoveredFan) {
+        return 'red'; // Если вентилятор наведен, цвет - красный
       } else {
         const matchingDataset = chartDataSets.find((dataset) => dataset.name === fanName);
         if (matchingDataset) {
@@ -29,17 +31,17 @@ function CustomPlot({
         return 'rgb(152, 152, 152)';
       }
     },
-    [hoveredFan]
+    [selectedFan, hoveredFan]
   );
 
-  // Обновление линий графиков вентиляторов в зависимости от реузльтата расчётов
 
+  // Обновление линий графиков вентиляторов в зависимости от результата расчётов и выбранного вентилятора
   const updatedDataSets = useMemo(() => {
     return chartDataSets.map((dataset) => {
       const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
       const color = getLineColor(dataset.name);
 
-      if (displayAllOnPlot || fanResult) {
+      if ((displayAllOnPlot || fanResult) && (selectedFan === dataset.name || !selectedFan)) {
         return {
           ...dataset,
           line: {
@@ -49,12 +51,12 @@ function CustomPlot({
         };
       }
     });
-  }, [correctFanResults, getLineColor, displayAllOnPlot]);
+  }, [correctFanResults, getLineColor, displayAllOnPlot, selectedFan]);
 
   useEffect(() => {
     // Обновляем график
     setRevision((r) => r + 1);
-  }, [updatedDataSets]); // Инициализация перерисовки компонента графика при изменении updatedDataSets
+  }, [updatedDataSets, selectedFan, hoveredFan]); // Инициализация перерисовки компонента графика при изменении updatedDataSets, selectedFan или hoveredFan
 
   return (
     <Plot
@@ -90,7 +92,7 @@ function CustomPlot({
         },
         shapes: perpendicularLines,
       }}
-      revision={revision} // Без этого пропса график не перерисовывается
+      revision={revision}
     />
   );
 }
@@ -101,6 +103,7 @@ CustomPlot.propTypes = {
   calculatedLine: PropTypes.object,
   perpendicularLines: PropTypes.arrayOf(PropTypes.object),
   scale: PropTypes.number.isRequired,
+  selectedFan: PropTypes.string,
   hoveredFan: PropTypes.string,
   correctFanResults: PropTypes.arrayOf(
     PropTypes.shape({

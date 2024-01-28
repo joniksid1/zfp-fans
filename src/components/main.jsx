@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import * as dataPoints from '../utils/chart-data-points';
 import Info from './info';
 import Calculator from './calculator';
 import CalculationResults from './calculation-results';
 import PropTypes from 'prop-types';
 import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
+import { getFanModels, getFanDataPoints } from '../utils/api';
 
 function Main({
   view,
@@ -24,6 +24,36 @@ function Main({
   const [calculatedLine, setCalculatedLine] = useState(null);
   const [displayModeBar, setDisplayModeBar] = useState(false);
   const [displayLog, setDisplayLog] = useState(true);
+  const [fanModels, setFanModels] = useState([]);
+  const [fanDataPoints, setFanDataPoints] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Получаем список вентиляторов
+        const modelsArray = await getFanModels();
+        setFanModels(modelsArray);
+
+        // Получаем FanDataPoints для каждого вентилятора
+        const fanDataResults = await getFanDataPoints();
+
+        // Создаем объект с FanDataPoints, используя модель вентилятора в качестве ключа
+        const dataPointsObject = {};
+        fanDataResults.forEach((result, index) => {
+
+          // Используем модель вентилятора из modelsArray
+          const fanModel = modelsArray[index];
+          dataPointsObject[fanModel] = result.data;
+        });
+
+        setFanDataPoints(dataPointsObject);
+      } catch (error) {
+        console.error('Ошибка при запросе данных названия и точек графика вентилятора:', error.message);
+      }
+    };
+
+    fetchData();
+  }, []); // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
 
   const plotRef = useRef(null);
 
@@ -182,57 +212,24 @@ function Main({
     }
   }
 
-  // Приводим в соответствие название вентиляторов (из-за переменных, временное решение)
-
-  function formatFanName(rawName) {
-    if (rawName === 'ZFR_1_9_2E') {
-      return 'ZFR 1,9-2E';
-    } else if (rawName === 'ZFR_2_25_2E') {
-      return 'ZFR 2,25-2E';
-    } else if (rawName === 'ZFR_2_5_2E') {
-      return 'ZFR 2,5-2E';
-    } else if (rawName === 'ZFR_2_8_2E') {
-      return 'ZFR 2,8-2E';
-    } else if (rawName === 'ZFR_3_1_4E') {
-      return 'ZFR 3,1-4E';
-    } else if (rawName === 'ZFR_3_1_4D') {
-      return 'ZFR 3,1-4D';
-    } else if (rawName === 'ZFR_3_5_4E') {
-      return 'ZFR 3,5-4E';
-    } else if (rawName === 'ZFR_3_5_4D') {
-      return 'ZFR 3,5-4D';
-    } else if (rawName === 'ZFR_4_4E') {
-      return 'ZFR 4-4E';
-    } else if (rawName === 'ZFR_4_4D') {
-      return 'ZFR 4-4D';
-    } else if (rawName === 'ZFR_4_5_4E') {
-      return 'ZFR 4,5-4E';
-    } else if (rawName === 'ZFR_4_5_4D') {
-      return 'ZFR 4,5-4D';
-    } else if (rawName === 'ZFR_5_4D') {
-      return 'ZFR 5-4D';
-    } else if (rawName === 'ZFR_5_6_4D') {
-      return 'ZFR 5,6-4D';
-    } else if (rawName === 'ZFR_6_3_4D') {
-      return 'ZFR 6,3-4D';
-    } else {
-      return rawName;
-    }
-  }
-
   // Вызывается в по нажатию на "Рассчитать"
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const keys = Object.keys(dataPoints);
 
     setAllFanResults([]);
     setCorrectFanResults([]);
 
-    for (let i = 0; i < keys.length; i++) {
-      const formattedName = formatFanName(keys[i]);
-      calculateFan(dataPoints[keys[i]], formattedName);
-    }
+    // Используем пришедшие с бэка данные модели и по точкам графика вентиляторов
+
+    fanModels.forEach(async (fanModel) => {
+      const fanData = fanDataPoints[fanModel];
+      if (fanData) {
+        calculateFan(fanData, fanModel);
+      } else {
+        console.error(`Не найдено данных по точкам графика для: ${fanModel}`);
+      }
+    });
 
     setPointWithLinesOnChart();
   };

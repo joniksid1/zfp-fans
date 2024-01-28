@@ -1,5 +1,4 @@
 import * as dataPoints from '../utils/chart-data-points';
-
 const chartDataSets = [
   {
     name: 'ZFR 1,9-2E',

@@ -37,7 +37,7 @@ export const getFanModels = () => {
     })
     .then((data) => data.modelsArray)
     .catch((error) => {
-      console.error('Error fetching fan models:', error.message);
+      console.error('Ошибка при запросе данных моделей вентиляторов на сервер:', error.message);
       throw error;
     });
 };
@@ -46,13 +46,13 @@ export const getFanDataPoints = () => {
   return fetch(`${BASE_URL}/fanDataPoints`)
     .then((response) => {
       if (!response.ok) {
-        throw new Error('Не удалось получить данные вентиляторов');
+        throw new Error('Не удалось получить данные точек графиков вентиляторов');
       }
       return response.json();
     })
     .then((data) => data.fanData)
     .catch((error) => {
-      console.error('Error fetching fan data points:', error.message);
+      console.error('Ошибка при запросе данных точек графиков вентиляторов на сервер:', error.message);
       throw error;
     });
 };

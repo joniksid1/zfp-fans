@@ -30,30 +30,45 @@ function Main({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Получаем список вентиляторов
-        const modelsArray = await getFanModels();
-        setFanModels(modelsArray);
+        const storedFanModels = localStorage.getItem('fanModels');
+        const storedFanDataPoints = localStorage.getItem('fanDataPoints');
 
-        // Получаем FanDataPoints для каждого вентилятора
-        const fanDataResults = await getFanDataPoints();
+        if (storedFanModels && storedFanDataPoints) {
+          setFanModels(JSON.parse(storedFanModels));
+          setFanDataPoints(JSON.parse(storedFanDataPoints));
+        } else {
+          // Если данные отсутствуют в localStorage, загружаем их с сервера
+          // Получаем список вентиляторов
 
-        // Создаем объект с FanDataPoints, используя модель вентилятора в качестве ключа
-        const dataPointsObject = {};
-        fanDataResults.forEach((result, index) => {
+          const modelsArray = await getFanModels();
+          setFanModels(modelsArray);
 
-          // Используем модель вентилятора из modelsArray
-          const fanModel = modelsArray[index];
-          dataPointsObject[fanModel] = result.data;
-        });
+          // Получаем точки графика для каждого вентилятора
+          const fanDataResults = await getFanDataPoints();
 
-        setFanDataPoints(dataPointsObject);
+          // Создаем объект с fanDataPoints, используя модель вентилятора в качестве ключа
+          const dataPointsObject = {};
+          fanDataResults.forEach((result, index) => {
+
+            // Используем модель вентилятора из modelsArray
+            const fanModel = modelsArray[index];
+            dataPointsObject[fanModel] = result.data;
+          });
+
+          // Сохраняем полученные даные в стейт
+          setFanDataPoints(dataPointsObject);
+
+          // Сохраняем полученные данные в localStorage
+          localStorage.setItem('fanModels', JSON.stringify(modelsArray));
+          localStorage.setItem('fanDataPoints', JSON.stringify(dataPointsObject));
+        }
       } catch (error) {
         console.error('Ошибка при запросе данных названия и точек графика вентилятора:', error.message);
       }
     };
 
     fetchData();
-  }, []); // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
+  }, []);  // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
 
   const plotRef = useRef(null);
 
@@ -305,6 +320,5 @@ Main.propTypes = {
   switchToForm: PropTypes.func,
   switchToResults: PropTypes.func,
 };
-
 
 export default Main;

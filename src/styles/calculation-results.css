@@ -46,6 +46,10 @@
   opacity: .8;
 }
 
+.calculation-results__button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
 
 .calculation-results__table {
   width: 100%;

@@ -5,7 +5,10 @@ function CalculationResults({
   resultsHistory,
   setResultsHistory,
   switchToForm,
+  loading,
+  setLoading,
 }) {
+
   const getComponentName = (option) => {
     const componentNames = {
       selectFlatRoofSocket: 'Монтажный стакан для плоской кровли',
@@ -22,6 +25,8 @@ function CalculationResults({
 
   const downloadDataSheet = async () => {
     try {
+      setLoading(true);
+
       const promises = resultsHistory.map(async (historyItem) => {
         try {
           const response = await getDataSheet(historyItem);
@@ -57,8 +62,11 @@ function CalculationResults({
       console.log('Все файлы успешно созданы');
     } catch (error) {
       console.error('Ошибка при создании файлов', error);
+    } finally {
+      setLoading(false);
     }
   };
+
 
   const clearHistory = () => {
     setResultsHistory([]);
@@ -68,7 +76,11 @@ function CalculationResults({
     <div className="calculation-results">
       <h2 className="calculation-results__header">История подбора</h2>
       <div className="calculation-results__wrapper">
-        <button className="calculation-results__button" onClick={clearHistory}>
+        <button
+          className="calculation-results__button"
+          onClick={clearHistory}
+          disabled={resultsHistory.length === 0}
+        >
           Очистить историю
         </button>
         <button className="calculation-results__button" onClick={switchToForm}>
@@ -78,9 +90,10 @@ function CalculationResults({
         </button>
         <button
           className="calculation-results__button"
+          disabled={resultsHistory.length === 0}
           onClick={() => downloadDataSheet()}
         >
-          Скачать PDF
+          {loading ? 'Загрузка...' : 'Скачать тех. данные'}
         </button>
       </div>
       {resultsHistory.length > 0 ? (
@@ -137,6 +150,8 @@ CalculationResults.propTypes = {
   ),
   setResultsHistory: PropTypes.func,
   switchToForm: PropTypes.func,
+  loading: PropTypes.bool,
+  setLoading: PropTypes.func,
 };
 
 export default CalculationResults;

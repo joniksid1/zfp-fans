@@ -2,7 +2,7 @@ export const BASE_URL = 'http://localhost:3000';
 // Для локального запуска с бэкэндом на 3000 порте
 
 export const getDataSheet = (historyItem) => {
-  return fetch(`${BASE_URL}/pdf`, {
+  return fetch(`${BASE_URL}/excel`, {
     method: 'POST',
     credentials: 'include',
     headers: {

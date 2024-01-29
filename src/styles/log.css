@@ -23,6 +23,12 @@
   color: #504f4f;
 }
 
+.log__button:disabled {
+  opacity: .5;
+  background: rgba(220,220,220, .5);
+  color: #504f4f;
+}
+
 .log__data {
   margin: 0;
   text-align: left;

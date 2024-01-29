@@ -26,6 +26,7 @@ function Main({
   const [displayLog, setDisplayLog] = useState(true);
   const [fanModels, setFanModels] = useState([]);
   const [fanDataPoints, setFanDataPoints] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,11 +77,14 @@ function Main({
     setResultsHistory(prevHistory => [newResult, ...prevHistory]);
   };
 
-  // Обработка инпутов ввода расхода воздуа и давления
+  // Обработка инпутов ввода расхода воздуха и давления
 
   const flowRateValueChange = (e) => {
-    if (FLOW_INPUT_REGEXP.test(e.target.value)) {
-      setFlowRateValue(e.target.value);
+    const inputValue = e.target.value;
+
+    // Проверка, что введенное значение не является нулем и соответствует регулярному выражению
+    if (FLOW_INPUT_REGEXP.test(inputValue) && parseFloat(inputValue) !== 0) {
+      setFlowRateValue(inputValue);
     }
   };
 
@@ -146,18 +150,25 @@ function Main({
   const calculateFan = (dataPoints, fanName) => {
     const maxXValue = Math.max(...dataPoints.map(point => point.x));
     const xValue = parseFloat(flowRateValue);
+
     const yValue = parseFloat(staticPressureValue);
 
     const interpolatedY = interpolateY(xValue, dataPoints);
     const interpolatedX = inverseInterpolateX(yValue, dataPoints);
 
     let resultMessage;
+
     const flowDeviation = Math.round((interpolatedX - xValue) / xValue * 100);
+
     const staticPressureDeviation = Math.round((interpolatedY - yValue) / yValue * 100);
 
     if (xValue <= maxXValue && xValue > 0) {
       if (yValue <= interpolatedY) {
-        resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу + ${flowDeviation} %, отклонение по напору + ${staticPressureDeviation} %`;
+        if (yValue !== 0) {
+          resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу + ${flowDeviation} %, отклонение по напору + ${staticPressureDeviation} %`;
+        } else {
+          resultMessage = `попал в график с рабочей точкой ${xValue} м3/ч ${yValue} Па, отклонение по расходу + ${flowDeviation} %`;
+        }
         setCorrectFanResults((prevResults) => [
           ...prevResults,
           { fanName, result: resultMessage, flowDeviation },
@@ -204,10 +215,12 @@ function Main({
         { type: 'line', x0: 0, y0: yValue, x1: xValue, y1: yValue, line: { dash: 'dash', color: 'grey' } },
       ];
 
+      const maxXValue = Math.max(...fanModels.map(model => Math.max(...fanDataPoints[model].map(point => point.x))));
+
       const k = yValue / (xValue ** 2);
 
       const calculatedLinePoints = [];
-      for (let v = 0; v <= xValue; v += 100) {
+      for (let v = 0; v <= maxXValue; v += 100) {
         const p = k * v ** 2;
         calculatedLinePoints.push({ x: v, y: p });
       }
@@ -218,7 +231,7 @@ function Main({
         mode: 'lines',
         x: calculatedLinePoints.map(point => point.x),
         y: calculatedLinePoints.map(point => point.y),
-        line: { color: 'red' },
+        line: { dash: 'dash', color: 'red' },
       };
 
       setNewPoint(newPoint);
@@ -281,6 +294,8 @@ function Main({
             allFanResults={allFanResults}
             addResultsToHistory={addResultsToHistory}
             switchToResults={switchToResults}
+            loading={loading}
+            setLoading={setLoading}
           />
         } />
         <Route path="/results" element={
@@ -288,6 +303,8 @@ function Main({
             resultsHistory={resultsHistory}
             setResultsHistory={setResultsHistory}
             switchToForm={switchToForm}
+            loading={loading}
+            setLoading={setLoading}
           />
         } />
       </Routes>
@@ -300,6 +317,7 @@ function Main({
             <button
               className='log__button calculator__button'
               onClick={handleLogClear}
+              disabled={logMessages.length === 0}
             >
               Очистить лог
             </button>

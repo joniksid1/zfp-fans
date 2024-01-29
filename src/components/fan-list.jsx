@@ -13,6 +13,8 @@ function FanList({
   addResultsToHistory,
   switchToResults,
   generatePlotImage,
+  loading,
+  setLoading,
 }) {
 
   const handleFanClick = (fanName) => {
@@ -73,6 +75,8 @@ function FanList({
         addResultsToHistory={addResultsToHistory}
         switchToResults={switchToResults}
         generatePlotImage={generatePlotImage}
+        loading={loading}
+        setLoading={setLoading}
       />
     </div>
   );
@@ -100,6 +104,8 @@ FanList.propTypes = {
   addResultsToHistory: PropTypes.func,
   switchToResults: PropTypes.func,
   generatePlotImage: PropTypes.func,
+  loading: PropTypes.bool,
+  setLoading: PropTypes.func,
 };
 
 export default FanList;

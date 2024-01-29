@@ -68,7 +68,8 @@
 }
 
 .calculator__button:disabled {
-  background: transparent;
-  color: rgba(0, 0, 0, .2);
-  border: 1px solid rgba(0, 0, 0, .2);
+  background-color: #c3c1c1;
+  opacity: .8;
+  cursor: not-allowed;
 }
+

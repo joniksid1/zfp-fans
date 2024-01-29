@@ -11,6 +11,8 @@ function CustomModal({
   addResultsToHistory,
   switchToResults,
   generatePlotImage,
+  loading,
+  setLoading,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
@@ -63,6 +65,7 @@ function CustomModal({
 
   const handleModalConfirm = async () => {
     try {
+      setLoading(true);
       const plotImageResult = await generatePlotImage();
 
       addResultsToHistory({
@@ -87,6 +90,8 @@ function CustomModal({
     } catch (error) {
       console.error("Error generating plot image:", error);
       // Обработка ошибок при генерации изображения
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -201,7 +206,7 @@ function CustomModal({
       <label htmlFor="selectRegulator" className="modal__label modal__label_type_option">
         Регулятор скорости
       </label>
-      <button className='modal__button' onClick={handleModalConfirm}>Сохранить</button>
+      <button className='modal__button' onClick={handleModalConfirm}>{loading ? 'Сохранение...' : 'Сохранить'}</button>
     </Modal>
   );
 }
@@ -215,6 +220,8 @@ CustomModal.propTypes = {
   addResultsToHistory: PropTypes.func,
   switchToResults: PropTypes.func,
   generatePlotImage: PropTypes.func,
+  loading: PropTypes.bool,
+  setLoading: PropTypes.func,
 };
 
 export default CustomModal

@@ -13,6 +13,10 @@ function CustomModal({
   generatePlotImage,
   loading,
   setLoading,
+  projectNameValue,
+  projectNameValueChange,
+  isProjectNameLocked,
+  setIsProjectNameLocked,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
@@ -42,14 +46,10 @@ function CustomModal({
   };
 
   const handleCloseModal = () => {
-
-    // Вызываем сброс состояний при закрытии модального окна
-
     resetState();
     setSystemNameValue('');
 
     // Закрываем модальное окно
-
     closeModalWindow();
   };
 
@@ -66,6 +66,9 @@ function CustomModal({
   const handleModalConfirm = async () => {
     try {
       setLoading(true);
+
+      setIsProjectNameLocked(true);
+
       const plotImageResult = await generatePlotImage();
 
       addResultsToHistory({
@@ -105,7 +108,26 @@ function CustomModal({
     >
       <button className='modal__close-button' onClick={handleCloseModal}></button>
       <h2 className='modal__header'>{fanName}</h2>
-      <label htmlFor="systemName" className="modal__label modal__label_type_system-name">
+      <label htmlFor="projectName" className="modal__label modal__label_type_name">
+        Название проекта:
+      </label>
+      <input
+        name="projectName"
+        type="text"
+        id="projectName"
+        className="modal__input"
+        required=""
+        maxLength={20}
+        value={projectNameValue}
+        onChange={projectNameValueChange}
+        disabled={isProjectNameLocked}
+      />
+      <button
+        className='modal__edit-button'
+        onClick={() => setIsProjectNameLocked(!isProjectNameLocked)}
+      >
+      </button>
+      <label htmlFor="systemName" className="modal__label modal__label_type_name">
         Название системы:
       </label>
       <input
@@ -222,6 +244,10 @@ CustomModal.propTypes = {
   generatePlotImage: PropTypes.func,
   loading: PropTypes.bool,
   setLoading: PropTypes.func,
+  projectNameValue: PropTypes.string,
+  projectNameValueChange: PropTypes.func,
+  isProjectNameLocked: PropTypes.bool,
+  setIsProjectNameLocked: PropTypes.func,
 };
 
 export default CustomModal

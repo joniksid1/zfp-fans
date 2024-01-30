@@ -15,6 +15,11 @@ function FanList({
   generatePlotImage,
   loading,
   setLoading,
+  projectNameValue,
+  setProjectNameValue,
+  projectNameValueChange,
+  isProjectNameLocked,
+  setIsProjectNameLocked,
 }) {
 
   const handleFanClick = (fanName) => {
@@ -77,6 +82,11 @@ function FanList({
         generatePlotImage={generatePlotImage}
         loading={loading}
         setLoading={setLoading}
+        projectNameValue={projectNameValue}
+        setProjectNameValue={setProjectNameValue}
+        projectNameValueChange={projectNameValueChange}
+        isProjectNameLocked={isProjectNameLocked}
+        setIsProjectNameLocked={setIsProjectNameLocked}
       />
     </div>
   );
@@ -106,6 +116,11 @@ FanList.propTypes = {
   generatePlotImage: PropTypes.func,
   loading: PropTypes.bool,
   setLoading: PropTypes.func,
+  projectNameValue: PropTypes.string,
+  setProjectNameValue: PropTypes.func,
+  projectNameValueChange: PropTypes.func,
+  isProjectNameLocked: PropTypes.bool,
+  setIsProjectNameLocked: PropTypes.func,
 };
 
 export default FanList;

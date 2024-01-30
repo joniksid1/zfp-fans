@@ -7,6 +7,7 @@ function CalculationResults({
   switchToForm,
   loading,
   setLoading,
+  projectNameValue,
 }) {
 
   const getComponentName = (option) => {
@@ -75,6 +76,7 @@ function CalculationResults({
   return (
     <div className="calculation-results">
       <h2 className="calculation-results__header">История подбора</h2>
+      <p className="calculation-results__text">{ projectNameValue }</p>
       <div className="calculation-results__wrapper">
         <button
           className="calculation-results__button"
@@ -132,7 +134,7 @@ function CalculationResults({
           </table>
         </div>
       ) : (
-        <p className="calculation-results__text">Рассчитанных вентиляторов нет, начните расчёт</p>
+        <p className="calculation-results__text calculation-results__text_type_bottom">Рассчитанных вентиляторов нет, начните расчёт</p>
       )}
     </div>
   );
@@ -152,6 +154,7 @@ CalculationResults.propTypes = {
   switchToForm: PropTypes.func,
   loading: PropTypes.bool,
   setLoading: PropTypes.func,
+  projectNameValue: PropTypes.string,
 };
 
 export default CalculationResults;

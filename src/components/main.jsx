@@ -12,6 +12,7 @@ function Main({
   switchToForm,
   switchToResults,
 }) {
+  const [projectNameValue, setProjectNameValue] = useState('');
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
   const [scale, setScale] = useState(1);
@@ -27,6 +28,7 @@ function Main({
   const [fanModels, setFanModels] = useState([]);
   const [fanDataPoints, setFanDataPoints] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isProjectNameLocked, setIsProjectNameLocked] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,6 +77,12 @@ function Main({
 
   const addResultsToHistory = (newResult) => {
     setResultsHistory(prevHistory => [newResult, ...prevHistory]);
+  };
+
+  // Обработка инпута изменения названия проекта
+
+  const projectNameValueChange = (e) => {
+    setProjectNameValue(e.target.value);
   };
 
   // Обработка инпутов ввода расхода воздуха и давления
@@ -296,6 +304,11 @@ function Main({
             switchToResults={switchToResults}
             loading={loading}
             setLoading={setLoading}
+            projectNameValue={projectNameValue}
+            setProjectNameValue={setProjectNameValue}
+            projectNameValueChange={projectNameValueChange}
+            isProjectNameLocked={isProjectNameLocked}
+            setIsProjectNameLocked={setIsProjectNameLocked}
           />
         } />
         <Route path="/results" element={
@@ -305,6 +318,7 @@ function Main({
             switchToForm={switchToForm}
             loading={loading}
             setLoading={setLoading}
+            projectNameValue={projectNameValue}
           />
         } />
       </Routes>

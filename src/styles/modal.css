@@ -36,7 +36,7 @@
 .modal__close-button {
   position: absolute;
   cursor: pointer;
-  top: -36px;
+  top: -15px;
   right: -36px;
   width: 28px;
   height: 28px;
@@ -76,6 +76,10 @@
   outline: 2px solid rgba(0, 0, 0, .2);
 }
 
+.modal__input:disabled {
+  background-color: rgba(221, 219, 219, 0.3);;
+}
+
 .modal__checkbox {
   display: none;
 }
@@ -85,7 +89,7 @@
   font-weight: 600;
 }
 
-.modal__label_type_system-name {
+.modal__label_type_name {
   padding: 0;
   margin-bottom: 10px;
 }
@@ -114,6 +118,26 @@
   border-radius: 5px;
   box-sizing: border-box;
   transition: all .3s ease-in-out;
+}
+
+.modal__edit-button {
+  cursor: pointer;
+  height: 28px;
+  width: 28px;
+  position: absolute;
+  right: 20px;
+  top: 96px;
+  background-image: url('../images/edit-button.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px 28px;
+  background-color: transparent;
+  border: none;
+  transition: opacity .3s ease-in-out;
+}
+
+.modal__edit-button:hover {
+  opacity: .7;
 }
 
 .modal__checkbox:checked + .modal__label_type_option::before {

@@ -140,6 +140,11 @@
   opacity: .7;
 }
 
+.modal__edit-button:focus {
+  border: 0;
+  outline: 0;
+}
+
 .modal__checkbox:checked + .modal__label_type_option::before {
   background-color: rgba(80, 79, 79, .3);
 }

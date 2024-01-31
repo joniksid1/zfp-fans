@@ -1,6 +1,6 @@
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function CustomModal({
   isOpen,
@@ -27,6 +27,16 @@ function CustomModal({
   const [selectFlexibleConnector, setSelectFlexibleConnector] = useState(false);
   const [selectFlange, setSelectFlange] = useState(false);
   const [selectRegulator, setSelectRegulator] = useState(false);
+
+  // Разблокирование project name в модальном окне при очистке значения projectNameValue
+  useEffect(() => {
+    if (!projectNameValue) {
+      setIsProjectNameLocked((prevIsLocked) => {
+        // Изменяем состояние только если оно было заблокировано (true)
+        return prevIsLocked ? false : prevIsLocked;
+      });
+    }
+  }, [projectNameValue, setIsProjectNameLocked]);
 
   const systemNameValueChange = (e) => {
     setSystemNameValue(e.target.value);

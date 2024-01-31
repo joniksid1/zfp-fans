@@ -319,6 +319,9 @@ function Main({
             loading={loading}
             setLoading={setLoading}
             projectNameValue={projectNameValue}
+            projectNameValueChange={projectNameValueChange}
+            setProjectNameValue={setProjectNameValue}
+            setIsProjectNameLocked={setIsProjectNameLocked}
           />
         } />
       </Routes>

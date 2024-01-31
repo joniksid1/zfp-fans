@@ -13,6 +13,11 @@
   justify-content: space-between;
 }
 
+.calculation-results__wrapper_type_project {
+  justify-content: center;
+  align-items: center;
+}
+
 .calculation-results__header {
   font-size: 24px;
   color: #333;
@@ -25,7 +30,7 @@
   margin: 20px 0 20px 0;
   width: 100px;
   min-height: 40px;
-  background: rgba(220,220,220, .5);
+  background: rgba(220, 220, 220, .5);
   color: #504f4f;
   border: 0;
   border-radius: 4px;
@@ -34,13 +39,27 @@
   transition: opacity .3s ease-in-out;
 }
 
-.calculation-results__button:first-of-type {
+.calculation-results__button_type_project {
+  margin-bottom: 22px;
+  height: 28px;
+  width: 28px;
+  background-image: url('../images/edit-button.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px 28px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  transition: opacity .3s ease-in-out;
+}
+
+/* .calculation-results__button:first-of-type {
   margin-left: 20px;
 }
 
 .calculation-results__button:last-of-type {
   margin-right: 20px;
-}
+} */
 
 .calculation-results__button:hover {
   opacity: .8;
@@ -80,16 +99,16 @@
 
 .calculation-results__text {
   margin: 0;
-  padding: 20px;
+  padding: 20px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #555;
+  color: #333;
 }
 
 .calculation-results__text_type_bottom {
   font-size: 16px;
-  padding: 50px;
   font-weight: normal;
+  color: #555;
 }
 
 .calculation-results__options-list {

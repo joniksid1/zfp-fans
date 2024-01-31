@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { getDataSheet } from '../utils/api';
+import ProjectNameModal from './project-name-modal';
 
 function CalculationResults({
   resultsHistory,
@@ -8,7 +10,20 @@ function CalculationResults({
   loading,
   setLoading,
   projectNameValue,
+  projectNameValueChange,
+  setProjectNameValue,
+  setIsProjectNameLocked,
 }) {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const getComponentName = (option) => {
     const componentNames = {
@@ -30,6 +45,7 @@ function CalculationResults({
 
       const promises = resultsHistory.map(async (historyItem) => {
         try {
+          historyItem.projectNameValue = projectNameValue;
           const response = await getDataSheet(historyItem);
 
           const contentType = response.headers?.get('content-type');
@@ -68,75 +84,93 @@ function CalculationResults({
     }
   };
 
-
   const clearHistory = () => {
     setResultsHistory([]);
+    setProjectNameValue('');
+    setIsProjectNameLocked(false);
   };
 
   return (
-    <div className="calculation-results">
-      <h2 className="calculation-results__header">История подбора</h2>
-      <p className="calculation-results__text">{ projectNameValue }</p>
-      <div className="calculation-results__wrapper">
-        <button
-          className="calculation-results__button"
-          onClick={clearHistory}
-          disabled={resultsHistory.length === 0}
-        >
-          Очистить историю
-        </button>
-        <button className="calculation-results__button" onClick={switchToForm}>
-          Вернуться
-          <br />
-          к расчёту
-        </button>
-        <button
-          className="calculation-results__button"
-          disabled={resultsHistory.length === 0}
-          onClick={() => downloadDataSheet()}
-        >
-          {loading ? 'Загрузка...' : 'Скачать тех. данные'}
-        </button>
-      </div>
-      {resultsHistory.length > 0 ? (
-        <div className="calculation-results__history">
-          <table className="calculation-results__table">
-            <thead>
-              <tr>
-                <th className="calculation-results__table-header">Система</th>
-                <th className="calculation-results__table-header">Вентилятор</th>
-                <th className="calculation-results__table-header">Поток воздуха, м³/ч</th>
-                <th className="calculation-results__table-header">Давление сети, Па</th>
-                <th className="calculation-results__table-header">Выбранные опции</th>
-              </tr>
-            </thead>
-            <tbody>
-              {resultsHistory.map((historyItem, index) => (
-                <tr className="calculation-results__table-row" key={index}>
-                  <td className="calculation-results__table-data">{historyItem.systemNameValue}</td>
-                  <td className="calculation-results__table-data">{historyItem.fanName}</td>
-                  <td className="calculation-results__table-data">{historyItem.flowRateValue}</td>
-                  <td className="calculation-results__table-data">{historyItem.staticPressureValue}</td>
-                  <td className="calculation-results__table-data">
-                    <ul className="calculation-results__options-list">
-                      {Object.entries(historyItem.selectedOptions).map(([option, value]) => (
-                        value && (
-                          <li key={option} className="calculation-results__options-item">
-                            {getComponentName(option)}
-                          </li>
-                        )
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <>
+      <div className="calculation-results">
+        <h2 className="calculation-results__header">История подбора</h2>
+        <div className="calculation-results__wrapper calculation-results__wrapper_type_project">
+          {projectNameValue &&
+            <p className="calculation-results__text">{projectNameValue}</p>
+          }
+          <button
+            className='calculation-results__button calculation-results__button_type_project'
+            onClick={openModal}
+          >
+          </button>
         </div>
-      ) : (
-        <p className="calculation-results__text calculation-results__text_type_bottom">Рассчитанных вентиляторов нет, начните расчёт</p>
-      )}
-    </div>
+        <div className="calculation-results__wrapper">
+          <button
+            className="calculation-results__button"
+            onClick={clearHistory}
+            disabled={resultsHistory.length === 0}
+          >
+            Очистить историю
+          </button>
+          <button className="calculation-results__button" onClick={switchToForm}>
+            Вернуться
+            <br />
+            к расчёту
+          </button>
+          <button
+            className="calculation-results__button"
+            disabled={resultsHistory.length === 0}
+            onClick={() => downloadDataSheet()}
+          >
+            {loading ? 'Загрузка...' : 'Скачать тех. данные'}
+          </button>
+        </div>
+        {resultsHistory.length > 0 ? (
+          <div className="calculation-results__history">
+            <table className="calculation-results__table">
+              <thead>
+                <tr>
+                  <th className="calculation-results__table-header">Система</th>
+                  <th className="calculation-results__table-header">Вентилятор</th>
+                  <th className="calculation-results__table-header">Поток воздуха, м³/ч</th>
+                  <th className="calculation-results__table-header">Давление сети, Па</th>
+                  <th className="calculation-results__table-header">Выбранные опции</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resultsHistory.map((historyItem, index) => (
+                  <tr className="calculation-results__table-row" key={index}>
+                    <td className="calculation-results__table-data">{historyItem.systemNameValue}</td>
+                    <td className="calculation-results__table-data">{historyItem.fanName}</td>
+                    <td className="calculation-results__table-data">{historyItem.flowRateValue}</td>
+                    <td className="calculation-results__table-data">{historyItem.staticPressureValue}</td>
+                    <td className="calculation-results__table-data">
+                      <ul className="calculation-results__options-list">
+                        {Object.entries(historyItem.selectedOptions).map(([option, value]) => (
+                          value && (
+                            <li key={option} className="calculation-results__options-item">
+                              {getComponentName(option)}
+                            </li>
+                          )
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="calculation-results__text calculation-results__text_type_bottom">Рассчитанных вентиляторов нет, начните расчёт</p>
+        )}
+      </div>
+      <ProjectNameModal
+        isModalOpen={isModalOpen}
+        closeModal={closeModal}
+        projectNameValue={projectNameValue}
+        projectNameValueChange={projectNameValueChange}
+      />
+    </>
   );
 }
 
@@ -155,6 +189,9 @@ CalculationResults.propTypes = {
   loading: PropTypes.bool,
   setLoading: PropTypes.func,
   projectNameValue: PropTypes.string,
+  projectNameValueChange: PropTypes.func,
+  setProjectNameValue: PropTypes.func,
+  setIsProjectNameLocked: PropTypes.func,
 };
 
 export default CalculationResults;

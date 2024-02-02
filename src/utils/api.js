@@ -1,8 +1,7 @@
 export const BASE_URL = 'http://localhost:3000';
-// Для локального запуска с бэкэндом на 3000 порте
 
-export const getDataSheet = (historyItem) => {
-  return fetch(`${BASE_URL}/excel`, {
+const fetchDataSheetOrCommercial = (historyItem, endpoint) => {
+  return fetch(`${BASE_URL}/${endpoint}`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -25,6 +24,14 @@ export const getDataSheet = (historyItem) => {
         });
       }
     });
+};
+
+export const getDataSheet = (historyItem) => {
+  return fetchDataSheetOrCommercial(historyItem, 'excel');
+};
+
+export const getCommercial = (historyItem) => {
+  return fetchDataSheetOrCommercial(historyItem, 'price');
 };
 
 export const getFanModels = () => {

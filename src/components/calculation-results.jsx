@@ -1,28 +1,37 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { getDataSheet } from '../utils/api';
+import { getDataSheet, getCommercial } from '../utils/api';
 import ProjectNameModal from './project-name-modal';
+import ConfirmModal from './confirm-modal';
 
 function CalculationResults({
   resultsHistory,
   setResultsHistory,
   switchToForm,
-  loading,
-  setLoading,
+  dataSheetLoading,
+  setDataSheetLoading,
+  commercialLoading,
+  setCommercialLoading,
   projectNameValue,
   projectNameValueChange,
   setProjectNameValue,
   setIsProjectNameLocked,
 }) {
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
+  const openProjecNameModal = () => {
+    setIsProjectNameModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const openConfirmModal = () => {
+    setIsConfirmModalOpen(true);
+  };
+
+  const closeModals = () => {
+    setIsProjectNameModalOpen(false);
+    setIsConfirmModalOpen(false);
   };
 
   const getComponentName = (option) => {
@@ -41,7 +50,7 @@ function CalculationResults({
 
   const downloadDataSheet = async () => {
     try {
-      setLoading(true);
+      setDataSheetLoading(true);
 
       const promises = resultsHistory.map(async (historyItem) => {
         try {
@@ -78,9 +87,43 @@ function CalculationResults({
       await Promise.all(promises);
       console.log('Все файлы успешно созданы');
     } catch (error) {
-      console.error('Ошибка при создании файлов', error);
+      console.error('Ошибка при создании файлов технических листов', error);
     } finally {
-      setLoading(false);
+      setDataSheetLoading(false);
+    }
+  };
+
+  const downloadCommercial = async () => {
+    try {
+      setCommercialLoading(true);
+
+      const response = await getCommercial(resultsHistory);
+
+      const contentType = response.headers?.get('content-type');
+
+      if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+        // Преобразовываем ответ в Blob
+        const blob = await response.blob();
+
+        // Создаем ссылку и автоматически запускаем скачивание
+        const fileURL = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = `MultipleFiles.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+
+        // Очищаем ссылку после скачивания
+        URL.revokeObjectURL(fileURL);
+      } else {
+        // Если тип контента не xlsx, обрабатываем его как текст
+        const text = await response.text();
+        console.log('Текстовые данные', text);
+      }
+    } catch (error) {
+      console.error('Ошибка при создании файла ТКП', error);
+    } finally {
+      setCommercialLoading(false);
     }
   };
 
@@ -89,6 +132,11 @@ function CalculationResults({
     setProjectNameValue('');
     setIsProjectNameLocked(false);
   };
+
+  const handleConfirmSubmit = () => {
+    clearHistory();
+    closeModals();
+  }
 
   return (
     <>
@@ -100,14 +148,14 @@ function CalculationResults({
           }
           <button
             className='calculation-results__button calculation-results__button_type_project'
-            onClick={openModal}
+            onClick={openProjecNameModal}
           >
           </button>
         </div>
         <div className="calculation-results__wrapper">
           <button
             className="calculation-results__button"
-            onClick={clearHistory}
+            onClick={openConfirmModal}
             disabled={resultsHistory.length === 0}
           >
             Очистить историю
@@ -122,7 +170,14 @@ function CalculationResults({
             disabled={resultsHistory.length === 0}
             onClick={() => downloadDataSheet()}
           >
-            {loading ? 'Загрузка...' : 'Скачать тех. данные'}
+            {dataSheetLoading ? 'Загрузка...' : 'Скачать тех. данные'}
+          </button>
+          <button
+            className="calculation-results__button"
+            disabled={resultsHistory.length === 0}
+            onClick={() => downloadCommercial()}
+          >
+            {commercialLoading ? 'Загрузка...' : 'Скачать ТКП'}
           </button>
         </div>
         {resultsHistory.length > 0 ? (
@@ -165,10 +220,15 @@ function CalculationResults({
         )}
       </div>
       <ProjectNameModal
-        isModalOpen={isModalOpen}
-        closeModal={closeModal}
+        isProjectNameModalOpen={isProjectNameModalOpen}
+        closeModals={closeModals}
         projectNameValue={projectNameValue}
         projectNameValueChange={projectNameValueChange}
+      />
+      <ConfirmModal
+        isConfirmModalOpen={isConfirmModalOpen}
+        closeModals={closeModals}
+        handleConfirmSubmit={handleConfirmSubmit}
       />
     </>
   );
@@ -186,8 +246,10 @@ CalculationResults.propTypes = {
   ),
   setResultsHistory: PropTypes.func,
   switchToForm: PropTypes.func,
-  loading: PropTypes.bool,
-  setLoading: PropTypes.func,
+  dataSheetLoading: PropTypes.bool,
+  setDataSheetLoading: PropTypes.func,
+  commercialLoading: PropTypes.bool,
+  setCommercialLoading: PropTypes.func,
   projectNameValue: PropTypes.string,
   projectNameValueChange: PropTypes.func,
   setProjectNameValue: PropTypes.func,

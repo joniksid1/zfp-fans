@@ -2,21 +2,21 @@ import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 
 function ProjectNameModal({
-  isModalOpen,
-  closeModal,
+  isProjectNameModalOpen,
+  closeModals,
   projectNameValue,
   projectNameValueChange,
 }) {
 
   return (
     <Modal
-      isOpen={isModalOpen}
-      onRequestClose={closeModal}
-      contentLabel="Выбор опций вентилятора"
+      isOpen={isProjectNameModalOpen}
+      onRequestClose={closeModals}
+      contentLabel="Выбор названия проекта"
       overlayClassName="modal__overlay"
       className="modal"
     >
-      <button className='modal__close-button' onClick={closeModal}></button>
+      <button className='modal__close-button' onClick={closeModals}></button>
       <h2 className='modal__header'>Название проекта</h2>
       <input
         name="projectName"
@@ -28,14 +28,14 @@ function ProjectNameModal({
         value={projectNameValue}
         onChange={projectNameValueChange}
       />
-      <button className='modal__button' onClick={closeModal}>Закрыть</button>
+      <button className='modal__button' onClick={closeModals}>Закрыть</button>
     </Modal>
   );
 }
 
 ProjectNameModal.propTypes = {
-  isModalOpen: PropTypes.bool,
-  closeModal: PropTypes.func,
+  isProjectNameModalOpen: PropTypes.bool,
+  closeModals: PropTypes.func,
   projectNameValue: PropTypes.string,
   projectNameValueChange: PropTypes.func,
 };

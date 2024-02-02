@@ -27,7 +27,8 @@ function Main({
   const [displayLog, setDisplayLog] = useState(true);
   const [fanModels, setFanModels] = useState([]);
   const [fanDataPoints, setFanDataPoints] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [dataSheetLoading, setDataSheetLoading] = useState(false);
+  const [commercialLoading, setCommercialLoading] = useState(false);
   const [isProjectNameLocked, setIsProjectNameLocked] = useState(false);
 
   useEffect(() => {
@@ -302,8 +303,8 @@ function Main({
             allFanResults={allFanResults}
             addResultsToHistory={addResultsToHistory}
             switchToResults={switchToResults}
-            loading={loading}
-            setLoading={setLoading}
+            loading={dataSheetLoading}
+            setLoading={setDataSheetLoading}
             projectNameValue={projectNameValue}
             setProjectNameValue={setProjectNameValue}
             projectNameValueChange={projectNameValueChange}
@@ -316,8 +317,10 @@ function Main({
             resultsHistory={resultsHistory}
             setResultsHistory={setResultsHistory}
             switchToForm={switchToForm}
-            loading={loading}
-            setLoading={setLoading}
+            dataSheetLoading={dataSheetLoading}
+            setDataSheetLoading={setDataSheetLoading}
+            commercialLoading={commercialLoading}
+            setCommercialLoading={setCommercialLoading}
             projectNameValue={projectNameValue}
             projectNameValueChange={projectNameValueChange}
             setProjectNameValue={setProjectNameValue}

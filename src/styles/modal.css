@@ -29,6 +29,10 @@
   outline: 0;
 }
 
+.modal_type_confirm {
+  min-height: 120px;
+}
+
 .modal__header {
   margin-top: 0;
 }

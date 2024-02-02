@@ -10,7 +10,7 @@
 
 .calculation-results__wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 .calculation-results__wrapper_type_project {
@@ -52,14 +52,6 @@
   border: none;
   transition: opacity .3s ease-in-out;
 }
-
-/* .calculation-results__button:first-of-type {
-  margin-left: 20px;
-}
-
-.calculation-results__button:last-of-type {
-  margin-right: 20px;
-} */
 
 .calculation-results__button:hover {
   opacity: .8;

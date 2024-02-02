@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
-import chartDataSets from '../utils/chart-config';
 
 function CustomPlot({
   displayModeBar,
@@ -13,6 +12,7 @@ function CustomPlot({
   hoveredFan,
   correctFanResults,
   displayAllOnPlot,
+  chartDataSets,
 }) {
   const [revision, setRevision] = useState(0);
 
@@ -31,13 +31,12 @@ function CustomPlot({
         return 'rgb(152, 152, 152)';
       }
     },
-    [selectedFan, hoveredFan]
+    [selectedFan, hoveredFan, chartDataSets]
   );
-
 
   // Обновление линий графиков вентиляторов в зависимости от результата расчётов и выбранного вентилятора
   const updatedDataSets = useMemo(() => {
-    return chartDataSets.map((dataset) => {
+    return (chartDataSets || []).map((dataset) => {
       const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
       const color = getLineColor(dataset.name);
 
@@ -51,7 +50,7 @@ function CustomPlot({
         };
       }
     });
-  }, [correctFanResults, getLineColor, displayAllOnPlot, selectedFan]);
+  }, [correctFanResults, getLineColor, displayAllOnPlot, selectedFan, chartDataSets]);
 
   useEffect(() => {
     // Обновляем график
@@ -112,6 +111,7 @@ CustomPlot.propTypes = {
     })
   ),
   displayAllOnPlot: PropTypes.bool,
+  chartDataSets: PropTypes.array,
 };
 
 export default CustomPlot;

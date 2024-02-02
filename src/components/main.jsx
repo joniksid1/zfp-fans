@@ -6,6 +6,7 @@ import CalculationResults from './calculation-results';
 import PropTypes from 'prop-types';
 import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
 import { getFanModels, getFanDataPoints } from '../utils/api';
+import getChartDataSets from '../utils/chart-config';
 
 function Main({
   view,
@@ -27,6 +28,7 @@ function Main({
   const [displayLog, setDisplayLog] = useState(true);
   const [fanModels, setFanModels] = useState([]);
   const [fanDataPoints, setFanDataPoints] = useState({});
+  const [chartDataSets, setChartDataSets] = useState([]);
   const [dataSheetLoading, setDataSheetLoading] = useState(false);
   const [commercialLoading, setCommercialLoading] = useState(false);
   const [isProjectNameLocked, setIsProjectNameLocked] = useState(false);
@@ -65,6 +67,9 @@ function Main({
           // Сохраняем полученные данные в localStorage
           localStorage.setItem('fanModels', JSON.stringify(modelsArray));
           localStorage.setItem('fanDataPoints', JSON.stringify(dataPointsObject));
+
+          // Создаём и устанавливаем конфигурацию графика
+          setChartDataSets(getChartDataSets());
         }
       } catch (error) {
         console.error('Ошибка при запросе данных названия и точек графика вентилятора:', error.message);
@@ -310,6 +315,7 @@ function Main({
             projectNameValueChange={projectNameValueChange}
             isProjectNameLocked={isProjectNameLocked}
             setIsProjectNameLocked={setIsProjectNameLocked}
+            chartDataSets={chartDataSets}
           />
         } />
         <Route path="/results" element={

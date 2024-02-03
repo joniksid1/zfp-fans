@@ -6,6 +6,7 @@ import { useState } from 'react';
 import html2canvas from 'html2canvas';
 
 function Calculator({
+  isDataLoaded,
   plotRef,
   displayModeBar,
   newPoint,
@@ -55,18 +56,20 @@ function Calculator({
     <section className="calculator">
       <div className="calculator__wrapper">
         <div className='calculator__chart' ref={plotRef}>
-          <CustomPlot
-            displayModeBar={displayModeBar}
-            newPoint={newPoint}
-            calculatedLine={calculatedLine}
-            perpendicularLines={perpendicularLines}
-            scale={scale}
-            selectedFan={selectedFan}
-            hoveredFan={hoveredFan}
-            correctFanResults={correctFanResults}
-            displayAllOnPlot={displayAllOnPlot}
-            chartDataSets={chartDataSets}
-          />
+          {isDataLoaded &&
+            <CustomPlot
+              displayModeBar={displayModeBar}
+              newPoint={newPoint}
+              calculatedLine={calculatedLine}
+              perpendicularLines={perpendicularLines}
+              scale={scale}
+              selectedFan={selectedFan}
+              hoveredFan={hoveredFan}
+              correctFanResults={correctFanResults}
+              displayAllOnPlot={displayAllOnPlot}
+              chartDataSets={chartDataSets}
+            />
+          }
         </div>
         {/* view переключается по нажатию на опции контекстного меню "бургера" */}
         {view === 'settings' ? (
@@ -83,7 +86,7 @@ function Calculator({
             setDisplayAllFanResults={setDisplayAllFanResults}
             chartDataSets={chartDataSets}
           />
-        ) : (
+        ) : ( isDataLoaded &&
           <form
             name='calculator'
             className="calculator__form"
@@ -151,6 +154,7 @@ function Calculator({
 }
 
 Calculator.propTypes = {
+  isDataLoaded: PropTypes.bool,
   plotRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   displayModeBar: PropTypes.bool,
   newPoint: PropTypes.object,

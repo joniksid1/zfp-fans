@@ -11,7 +11,7 @@ const getChartDataSets = () => {
   const storedFanDataPoints = JSON.parse(storedFanDataPointsStr) || {};
   const storedFanModels = JSON.parse(storedFanModelsStr) || [];
 
-  const getChartData = (modelName, color) => {
+  const getChartData = (modelName) => {
     const fanDataPoints = storedFanDataPoints[modelName];
 
     if (!fanDataPoints) {
@@ -19,20 +19,32 @@ const getChartDataSets = () => {
       return null;
     }
 
+    // Добавляем проверку на null и undefined перед обращением к данным точек графика, но она убирает нули
+    const xValues = fanDataPoints.map(point => (point && point.x !== undefined) ? point.x : null);
+    const yValues = fanDataPoints.map(point => (point && point.y !== undefined) ? point.y : null);
+
+    // Добавляем недостающие значения 0
+    if (xValues.length > 0 && xValues[0] !== 0) {
+      xValues.unshift(0);
+      yValues.unshift(0);
+    }
+
     return {
       name: modelName,
-      x: fanDataPoints.map(point => point.x),
-      y: fanDataPoints.map(point => point.y),
+      x: xValues,
+      y: yValues,
       type: 'scatter',
       mode: 'lines',
       line: {
-        color: color,
+        color: chartColors[modelName] || 'rgb(132, 132, 132)', // Задаем цвет по умолчанию, если цвет не найден
         width: 2,
       },
     };
   };
 
-  return storedFanModels.map((modelName, index) => getChartData(modelName, chartColors[index]));
+  const chartDataSets = storedFanModels.map((modelName) => getChartData(modelName));
+
+  return chartDataSets;
 }
 
 export default getChartDataSets;

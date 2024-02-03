@@ -7,12 +7,14 @@ import PropTypes from 'prop-types';
 import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
 import { getFanModels, getFanDataPoints } from '../utils/api';
 import getChartDataSets from '../utils/chart-config';
+import formatFanName from '../utils/format-name';
 
 function Main({
   view,
   switchToForm,
   switchToResults,
 }) {
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [projectNameValue, setProjectNameValue] = useState('');
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
@@ -42,6 +44,7 @@ function Main({
         if (storedFanModels && storedFanDataPoints) {
           setFanModels(JSON.parse(storedFanModels));
           setFanDataPoints(JSON.parse(storedFanDataPoints));
+          setChartDataSets(getChartDataSets());
         } else {
           // Если данные отсутствуют в localStorage, загружаем их с сервера
           // Получаем список вентиляторов
@@ -50,15 +53,25 @@ function Main({
           setFanModels(modelsArray);
 
           // Получаем точки графика для каждого вентилятора
-          const fanDataResults = await getFanDataPoints();
+          const fanDataPointsResults = await getFanDataPoints();
 
           // Создаем объект с fanDataPoints, используя модель вентилятора в качестве ключа
           const dataPointsObject = {};
-          fanDataResults.forEach((result, index) => {
 
-            // Используем модель вентилятора из modelsArray
-            const fanModel = modelsArray[index];
-            dataPointsObject[fanModel] = result.data;
+          // Проходимся по modelsArray и используем его для создания объекта
+          modelsArray.forEach((fanModel) => {
+            const formattedName = formatFanName(fanModel)
+
+            // Ищем соответствующий вентилятор в fanDataResults
+            const matchingResult = fanDataPointsResults.find((result) => {
+              return result.model === formattedName;
+            });
+
+            if (matchingResult) {
+              dataPointsObject[fanModel] = matchingResult.data;
+            } else {
+              console.error(`Не найдены данные по точкам графика для: ${fanModel}`);
+            }
           });
 
           // Сохраняем полученные даные в стейт
@@ -73,11 +86,14 @@ function Main({
         }
       } catch (error) {
         console.error('Ошибка при запросе данных названия и точек графика вентилятора:', error.message);
+      } finally {
+        // Устанавливаем состояние загрузки в true, чтобы график не отрисовывался без получения данных
+        setIsDataLoaded(true);
       }
     };
 
     fetchData();
-  }, []);  // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
+  }, []); // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
 
   const plotRef = useRef(null);
 
@@ -213,7 +229,6 @@ function Main({
   };
 
   // Установка заданной точки, линии сопротивления сети и перпендикулярных линий на графике при расчёте
-
   const setPointWithLinesOnChart = () => {
     const xValue = parseFloat(flowRateValue);
     const yValue = parseFloat(staticPressureValue);
@@ -229,7 +244,7 @@ function Main({
         { type: 'line', x0: 0, y0: yValue, x1: xValue, y1: yValue, line: { dash: 'dash', color: 'grey' } },
       ];
 
-      const maxXValue = Math.max(...fanModels.map(model => Math.max(...fanDataPoints[model].map(point => point.x))));
+      const maxXValue = Math.max(...fanModels.map(model => Math.max(...(fanDataPoints[model] || []).map(point => point.x))));
 
       const k = yValue / (xValue ** 2);
 
@@ -263,10 +278,9 @@ function Main({
     setCorrectFanResults([]);
 
     // Используем пришедшие с бэка данные модели и по точкам графика вентиляторов
-
     fanModels.forEach(async (fanModel) => {
       const fanData = fanDataPoints[fanModel];
-      if (fanData) {
+      if (fanData && Array.isArray(fanData)) {
         calculateFan(fanData, fanModel);
       } else {
         console.error(`Не найдено данных по точкам графика для: ${fanModel}`);
@@ -288,6 +302,7 @@ function Main({
         <Route path="/info" element={<Info />} />
         <Route path="/" element={
           <Calculator
+            isDataLoaded={isDataLoaded}
             plotRef={plotRef}
             displayModeBar={displayModeBar}
             newPoint={newPoint}

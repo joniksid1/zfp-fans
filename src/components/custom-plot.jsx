@@ -24,7 +24,7 @@ function CustomPlot({
       } else if (hoveredFan && fanName === hoveredFan) {
         return 'red'; // Если вентилятор наведен, цвет - красный
       } else {
-        const matchingDataset = chartDataSets.find((dataset) => dataset.name === fanName);
+        const matchingDataset = chartDataSets.find((dataset) => dataset && dataset.name === fanName);
         if (matchingDataset) {
           return matchingDataset.line.color;
         }
@@ -38,7 +38,7 @@ function CustomPlot({
   const updatedDataSets = useMemo(() => {
     return (chartDataSets || []).map((dataset) => {
       const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
-      const color = getLineColor(dataset.name);
+      const color = dataset && dataset.name ? getLineColor(dataset.name) : 'rgb(152, 152, 152)';
 
       if ((displayAllOnPlot || fanResult) && (selectedFan === dataset.name || !selectedFan)) {
         return {

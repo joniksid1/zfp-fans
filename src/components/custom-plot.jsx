@@ -37,19 +37,25 @@ function CustomPlot({
   // Обновление линий графиков вентиляторов в зависимости от результата расчётов и выбранного вентилятора
   const updatedDataSets = useMemo(() => {
     return (chartDataSets || []).map((dataset) => {
-      const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
-      const color = dataset && dataset.name ? getLineColor(dataset.name) : 'rgb(152, 152, 152)';
+      // Проверяем, что dataset не является нулевым и имеет свойство 'name'
+      if (dataset && dataset.name) {
+        const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
+        const color = getLineColor(dataset.name) || 'rgb(152, 152, 152)';
 
-      if ((displayAllOnPlot || fanResult) && (selectedFan === dataset.name || !selectedFan)) {
-        return {
-          ...dataset,
-          line: {
-            ...dataset.line,
-            color: color,
-          },
-        };
+        if ((displayAllOnPlot || fanResult) && (selectedFan === dataset.name || !selectedFan)) {
+          return {
+            ...dataset,
+            line: {
+              ...dataset.line,
+              color: color,
+            },
+          };
+        }
       }
-    });
+
+      // Если dataset нулевой или не имеет свойства 'name', возвращаем null
+      return null;
+    }).filter(Boolean);
   }, [correctFanResults, getLineColor, displayAllOnPlot, selectedFan, chartDataSets]);
 
   useEffect(() => {

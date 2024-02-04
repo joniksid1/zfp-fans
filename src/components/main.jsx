@@ -14,7 +14,6 @@ function Main({
   switchToForm,
   switchToResults,
 }) {
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [projectNameValue, setProjectNameValue] = useState('');
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
@@ -41,57 +40,74 @@ function Main({
         const storedFanModels = localStorage.getItem('fanModels');
         const storedFanDataPoints = localStorage.getItem('fanDataPoints');
 
+        // Если данные уже есть в localStorage, устанавливаем их в state и выходим из функции
         if (storedFanModels && storedFanDataPoints) {
           setFanModels(JSON.parse(storedFanModels));
           setFanDataPoints(JSON.parse(storedFanDataPoints));
           setChartDataSets(getChartDataSets());
+          return;
         } else {
-          // Если данные отсутствуют в localStorage, загружаем их с сервера
-          // Получаем список вентиляторов
+          // В противном случае, запрашиваем данные с сервера
+          const modelsArrayPromise = getFanModels();
+          const fanDataPointsResultsPromise = getFanDataPoints();
 
-          const modelsArray = await getFanModels();
-          setFanModels(modelsArray);
+          // Ожидаем завершения обеих асинхронных операций
+          const [modelsArray, fanDataPointsResults] = await Promise.all([modelsArrayPromise, fanDataPointsResultsPromise]);
 
-          // Получаем точки графика для каждого вентилятора
-          const fanDataPointsResults = await getFanDataPoints();
+          if (modelsArray && modelsArray.length > 0) {
+            setFanModels(modelsArray);
+            // Сохраняем полученные данные в localStorage только если запрос успешен
+            localStorage.setItem('fanModels', JSON.stringify(modelsArray));
+          }
 
-          // Создаем объект с fanDataPoints, используя модель вентилятора в качестве ключа
-          const dataPointsObject = {};
+          // Проверяем, что fanDataPointsResults не пустой массив
+          if (fanDataPointsResults.length > 0) {
+            const dataPointsObject = {};
 
-          // Проходимся по modelsArray и используем его для создания объекта
-          modelsArray.forEach((fanModel) => {
-            const formattedName = formatFanName(fanModel)
+            // Проходимся по modelsArray и используем его для создания объекта
+            await Promise.all((modelsArray || []).map(async (fanModel) => {
+              try {
+                if (!fanModel) {
+                  throw new Error('Неверный формат данных в modelsArray');
+                }
 
-            // Ищем соответствующий вентилятор в fanDataResults
-            const matchingResult = fanDataPointsResults.find((result) => {
-              return result.model === formattedName;
-            });
+                const formattedName = formatFanName(fanModel);
 
-            if (matchingResult) {
-              dataPointsObject[fanModel] = matchingResult.data;
-            } else {
-              console.error(`Не найдены данные по точкам графика для: ${fanModel}`);
-            }
-          });
+                // Ищем соответствующий вентилятор в fanDataResults
+                const matchingResult = fanDataPointsResults.find((result) => {
+                  return result.model === formattedName;
+                });
 
-          // Сохраняем полученные даные в стейт
-          setFanDataPoints(dataPointsObject);
+                if (matchingResult) {
+                  if (!matchingResult.data) {
+                    throw new Error(`Данные для вентилятора ${fanModel} не определены.`);
+                  }
 
-          // Сохраняем полученные данные в localStorage
-          localStorage.setItem('fanModels', JSON.stringify(modelsArray));
-          localStorage.setItem('fanDataPoints', JSON.stringify(dataPointsObject));
+                  dataPointsObject[fanModel] = matchingResult.data;
 
-          // Создаём и устанавливаем конфигурацию графика
-          setChartDataSets(getChartDataSets());
+                  // Сохраняем полученные данные в стейт
+                  setFanDataPoints(dataPointsObject);
+
+                  // Сохраняем данные в local storage
+                  localStorage.setItem('fanDataPoints', JSON.stringify(dataPointsObject));
+
+                  // Создаём и устанавливаем конфигурацию графика
+                  setChartDataSets(getChartDataSets());
+                } else {
+                  console.error(`Не найдены данные по точкам графика для: ${fanModel}`);
+                }
+              } catch (error) {
+                console.error('Ошибка при обработке данных:', error.message);
+              }
+            }));
+          }
         }
       } catch (error) {
         console.error('Ошибка при запросе данных названия и точек графика вентилятора:', error.message);
-      } finally {
-        // Устанавливаем состояние загрузки в true, чтобы график не отрисовывался без получения данных
-        setIsDataLoaded(true);
       }
     };
 
+    // Вызываем функцию fetchData при монтировании компонента
     fetchData();
   }, []); // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
 
@@ -302,7 +318,6 @@ function Main({
         <Route path="/info" element={<Info />} />
         <Route path="/" element={
           <Calculator
-            isDataLoaded={isDataLoaded}
             plotRef={plotRef}
             displayModeBar={displayModeBar}
             newPoint={newPoint}

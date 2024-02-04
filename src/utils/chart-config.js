@@ -14,11 +14,6 @@ const getChartDataSets = () => {
   const getChartData = (modelName) => {
     const fanDataPoints = storedFanDataPoints[modelName];
 
-    if (!fanDataPoints) {
-      console.error(`Не найдены данные о точках графика для ${modelName}`);
-      return null;
-    }
-
     // Добавляем проверку на null и undefined перед обращением к данным точек графика, но она убирает нули
     const xValues = fanDataPoints.map(point => (point && point.x !== undefined) ? point.x : null);
     const yValues = fanDataPoints.map(point => (point && point.y !== undefined) ? point.y : null);
@@ -42,7 +37,9 @@ const getChartDataSets = () => {
     };
   };
 
-  const chartDataSets = storedFanModels.map((modelName) => getChartData(modelName));
+  const chartDataSets = storedFanModels.map((modelName) => {
+    return getChartData(modelName)
+  });
 
   return chartDataSets;
 }

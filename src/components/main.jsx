@@ -37,10 +37,10 @@ function Main({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const storedFanModels = localStorage.getItem('fanModels');
-        const storedFanDataPoints = localStorage.getItem('fanDataPoints');
+        const storedFanModels = sessionStorage.getItem('fanModels');
+        const storedFanDataPoints = sessionStorage.getItem('fanDataPoints');
 
-        // Если данные уже есть в localStorage, устанавливаем их в state и выходим из функции
+        // Если данные уже есть в sessionStorage, устанавливаем их в state и выходим из функции
         if (storedFanModels && storedFanDataPoints) {
           setFanModels(JSON.parse(storedFanModels));
           setFanDataPoints(JSON.parse(storedFanDataPoints));
@@ -56,8 +56,8 @@ function Main({
 
           if (modelsArray && modelsArray.length > 0) {
             setFanModels(modelsArray);
-            // Сохраняем полученные данные в localStorage только если запрос успешен
-            localStorage.setItem('fanModels', JSON.stringify(modelsArray));
+            // Сохраняем полученные данные в sessionStorage только если запрос успешен
+            sessionStorage.setItem('fanModels', JSON.stringify(modelsArray));
           }
 
           // Проверяем, что fanDataPointsResults не пустой массив
@@ -89,7 +89,7 @@ function Main({
                   setFanDataPoints(dataPointsObject);
 
                   // Сохраняем данные в local storage
-                  localStorage.setItem('fanDataPoints', JSON.stringify(dataPointsObject));
+                  sessionStorage.setItem('fanDataPoints', JSON.stringify(dataPointsObject));
 
                   // Создаём и устанавливаем конфигурацию графика
                   setChartDataSets(getChartDataSets());

@@ -1,11 +1,11 @@
 import { chartColors } from "./constants";
 
 const getChartDataSets = () => {
-  const storedFanDataPointsStr = localStorage.getItem('fanDataPoints');
-  const storedFanModelsStr = localStorage.getItem('fanModels');
+  const storedFanDataPointsStr = sessionStorage.getItem('fanDataPoints');
+  const storedFanModelsStr = sessionStorage.getItem('fanModels');
 
   if (!storedFanDataPointsStr || !storedFanModelsStr) {
-    console.error('Не найдены данные о точках графика и / или моделях вентиляторов в local storage');
+    console.error('Не найдены данные о точках графика и / или моделях вентиляторов в session storage');
   }
 
   const storedFanDataPoints = JSON.parse(storedFanDataPointsStr) || {};

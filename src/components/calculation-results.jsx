@@ -47,7 +47,6 @@ function CalculationResults({
 
     return componentNames[option] || option;
   };
-
   const downloadDataSheet = async () => {
     try {
       setDataSheetLoading(true);
@@ -59,7 +58,7 @@ function CalculationResults({
 
           const contentType = response.headers?.get('content-type');
 
-          if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+          if (contentType && contentType.includes('application/pdf')) {
             // Преобразовываем ответ в Blob
             const blob = await response.blob();
 
@@ -67,14 +66,14 @@ function CalculationResults({
             const fileURL = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = fileURL;
-            a.download = `${historyItem.systemNameValue}.xlsx`;
+            a.download = `${historyItem.systemNameValue}.pdf`;
             document.body.appendChild(a);
             a.click();
 
             // Очищаем ссылку после скачивания
             URL.revokeObjectURL(fileURL);
           } else {
-            // Если тип контента не xlsx, обрабатываем его как текст
+            // Если тип контента не PDF, обрабатываем его как текст
             const text = await response.text();
             console.log('Текстовые данные', text);
           }

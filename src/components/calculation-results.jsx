@@ -108,7 +108,7 @@ function CalculationResults({
         const fileURL = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = fileURL;
-        a.download = `MultipleFiles.xlsx`;
+        a.download = `${projectNameValue}.xlsx`;
         document.body.appendChild(a);
         a.click();
 

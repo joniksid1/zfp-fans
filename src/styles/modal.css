@@ -124,6 +124,14 @@
   transition: all .3s ease-in-out;
 }
 
+.modal__checkbox:disabled + .modal__label_type_option {
+  cursor: not-allowed;
+}
+
+.modal__checkbox:disabled + .modal__label_type_option::before {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
 .modal__edit-button {
   cursor: pointer;
   height: 28px;

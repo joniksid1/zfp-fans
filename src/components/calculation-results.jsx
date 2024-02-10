@@ -126,7 +126,7 @@ function CalculationResults({
       }
     } catch (error) {
       console.error('Ошибка при создании файла ТКП', error);
-      setError(`Ошибка при создании файла ТКП. ${JSON.parse(error.message).error}`);
+      setError(`Ошибка при создании файла ТКП. ${error}`);
     } finally {
       setCommercialLoading(false);
     }

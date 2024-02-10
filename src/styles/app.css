@@ -6,6 +6,8 @@
 @import url(./scrollbar.css);
 @import url(./fan-list.css);
 @import url(./calculation-results.css);
+@import url(./preloader.css);
+@import url(./error-modal.css);
 
 input[type="number"] {
   -moz-appearance: textfield;

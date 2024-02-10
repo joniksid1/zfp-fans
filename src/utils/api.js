@@ -1,6 +1,6 @@
 export const BASE_URL = 'http://localhost:3000';
 
-const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
+export const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
   return fetch(`${BASE_URL}/${endpoint}`, {
     method: 'POST',
     credentials: 'include',
@@ -11,18 +11,17 @@ const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
     body: JSON.stringify({ historyItem })
   })
     .then(async (response) => {
-      const contentType = response.headers.get('content-type');
-
-      if (contentType && contentType.includes(acceptType)) {
-        // Если тип контента соответствует ожидаемому, возвращаем весь ответ
+      if (response.ok) {
         return response;
       } else {
-        // Если тип контента не соответствует ожидаемому, обрабатываем его как JSON
-        return response.json().then((data) => {
-          console.log('Данные JSON', data);
-          throw new Error('Получен неверный тип данных');
-        });
+        // Если ответ сервера не 200 OK, пытаемся получить текст ошибки
+        const errorMessage = await response.text();
+        throw new Error(errorMessage || 'Произошла ошибка на сервере');
       }
+    })
+    .catch((error) => {
+      console.error('Ошибка при выполнении запроса:', error.message);
+      throw error;
     });
 };
 

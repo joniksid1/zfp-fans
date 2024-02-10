@@ -1,5 +1,7 @@
 export const FLOW_INPUT_REGEXP = /^[0-9]{0,5}$/;
 export const PRESSURE_INPUT_REGEXP = /^[0-9]{0,4}$/;
+export const NAME_VALIDATION_REGEXP = /^[^/?*:;{}\\]+$/;
+
 export const chartColors = {
   "ZFR 1,9-2E": 'rgb(255, 99, 132)',
   "ZFR 2,25-2E": 'rgb(173, 255, 47)',

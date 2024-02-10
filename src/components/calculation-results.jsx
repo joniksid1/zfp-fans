@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { getDataSheet, getCommercial } from '../utils/api';
 import ProjectNameModal from './project-name-modal';
 import ConfirmModal from './confirm-modal';
+import Preloader from './preloader';
+import ErrorModal from './error-modal';
 
 function CalculationResults({
   resultsHistory,
@@ -20,6 +22,7 @@ function CalculationResults({
 
   const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   const openProjecNameModal = () => {
     setIsProjectNameModalOpen(true);
@@ -47,6 +50,7 @@ function CalculationResults({
 
     return componentNames[option] || option;
   };
+
   const downloadDataSheet = async () => {
     try {
       setDataSheetLoading(true);
@@ -78,13 +82,13 @@ function CalculationResults({
             console.log('Текстовые данные', text);
           }
         } catch (error) {
-          console.error('Ошибка при создании файла', error);
+          setError(`Ошибка при создании файлов технических листов. ${JSON.parse(error.message).error}`);
         }
       });
 
       // Ждем завершения всех запросов
       await Promise.all(promises);
-      console.log('Все файлы успешно созданы');
+      setDataSheetLoading(false);
     } catch (error) {
       console.error('Ошибка при создании файлов технических листов', error);
     } finally {
@@ -118,9 +122,11 @@ function CalculationResults({
         // Если тип контента не xlsx, обрабатываем его как текст
         const text = await response.text();
         console.log('Текстовые данные', text);
+        setError(`Ошибка при создании файла ТКП. ${error}`);
       }
     } catch (error) {
       console.error('Ошибка при создании файла ТКП', error);
+      setError(`Ошибка при создании файла ТКП. ${JSON.parse(error.message).error}`);
     } finally {
       setCommercialLoading(false);
     }
@@ -229,6 +235,9 @@ function CalculationResults({
         closeModals={closeModals}
         handleConfirmSubmit={handleConfirmSubmit}
       />
+      {commercialLoading && <Preloader />}
+      {dataSheetLoading && <Preloader />}
+      {error && <ErrorModal error={error} onClose={() => setError(null)} />}
     </>
   );
 }

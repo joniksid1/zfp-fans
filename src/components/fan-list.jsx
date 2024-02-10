@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import CustomModal from './custom-modal';
+import FanDataModal from './fan-data-modal';
 
 function FanList({
   correctFanResults,
@@ -71,7 +71,7 @@ function FanList({
           ))
         }
       </ul>
-      <CustomModal
+      <FanDataModal
         isOpen={selectedFan !== null || undefined}
         closeModalWindow={closeModalWindow}
         fanName={selectedFan}

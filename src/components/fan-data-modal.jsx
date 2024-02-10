@@ -1,8 +1,9 @@
 import Modal from 'react-modal';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
+import { NAME_VALIDATION_REGEXP } from '../utils/constants';
 
-function CustomModal({
+function FanDataModal({
   isOpen,
   closeModalWindow,
   fanName,
@@ -39,7 +40,9 @@ function CustomModal({
   }, [projectNameValue, setIsProjectNameLocked]);
 
   const systemNameValueChange = (e) => {
-    setSystemNameValue(e.target.value);
+    if (NAME_VALIDATION_REGEXP.test(e.target.value)) {
+      setSystemNameValue(e.target.value);
+    }
   };
 
   // Сброс состояний инпутов при закрытии модального окна
@@ -250,7 +253,7 @@ function CustomModal({
   );
 }
 
-CustomModal.propTypes = {
+FanDataModal.propTypes = {
   isOpen: PropTypes.bool,
   closeModalWindow: PropTypes.func,
   fanName: PropTypes.string,
@@ -267,4 +270,4 @@ CustomModal.propTypes = {
   setIsProjectNameLocked: PropTypes.func,
 };
 
-export default CustomModal
+export default FanDataModal

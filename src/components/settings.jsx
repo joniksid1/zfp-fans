@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 
 function Settings({
   setDisplayModeBar,
@@ -13,9 +14,18 @@ function Settings({
   setDisplayAllFanResults,
 }) {
 
+  // Функция для обновления localStorage при изменении настроек
+  useEffect(() => {
+    localStorage.setItem('displayModeBar', JSON.stringify(displayModeBar));
+    localStorage.setItem('displayAllOnPlot', JSON.stringify(displayAllOnPlot));
+    localStorage.setItem('displayLog', JSON.stringify(displayLog));
+    localStorage.setItem('displayAllFanResults', JSON.stringify(displayAllFanResults));
+    localStorage.setItem('scale', JSON.stringify(scale));
+  }, [displayModeBar, displayAllOnPlot, displayLog, displayAllFanResults, scale]);
+
   return (
     <div className="settings">
-      <label htmlFor="scaleInput" className="settings__label">
+      <label htmlFor="scaleSlider" className="settings__label">
         Масштаб:
       </label>
       <input
@@ -28,7 +38,7 @@ function Settings({
         value={scale}
         onChange={handleScaleSliderChange}
       />
-      <label htmlFor="scaleInput" className="settings__label">
+      <label htmlFor="displayModeBarInput" className="settings__label">
         Показать контроллеры графика:
       </label>
       <input

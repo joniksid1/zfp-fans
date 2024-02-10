@@ -4,7 +4,7 @@ import Info from './info';
 import Calculator from './calculator';
 import CalculationResults from './calculation-results';
 import PropTypes from 'prop-types';
-import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP } from '../utils/constants';
+import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP, NAME_VALIDATION_REGEXP } from '../utils/constants';
 import { getFanModels, getFanDataPoints } from '../utils/api';
 import getChartDataSets from '../utils/chart-config';
 import formatFanName from '../utils/format-name';
@@ -17,7 +17,6 @@ function Main({
   const [projectNameValue, setProjectNameValue] = useState('');
   const [flowRateValue, setFlowRateValue] = useState('');
   const [staticPressureValue, setStaticPressureValue] = useState('');
-  const [scale, setScale] = useState(1);
   const [correctFanResults, setCorrectFanResults] = useState([]);
   const [allFanResults, setAllFanResults] = useState([]);
   const [resultsHistory, setResultsHistory] = useState([]);
@@ -27,6 +26,9 @@ function Main({
   const [calculatedLine, setCalculatedLine] = useState(null);
   const [displayModeBar, setDisplayModeBar] = useState(false);
   const [displayLog, setDisplayLog] = useState(true);
+  const [scale, setScale] = useState(1);
+  const [displayAllOnPlot, setDisplayAllOnPlot] = useState(false);
+  const [displayAllFanResults, setDisplayAllFanResults] = useState(false);
   const [fanModels, setFanModels] = useState([]);
   const [fanDataPoints, setFanDataPoints] = useState({});
   const [chartDataSets, setChartDataSets] = useState([]);
@@ -100,6 +102,34 @@ function Main({
     fetchData();
   }, []); // Пустой массив зависимостей указывает на однократный вызов при монтировании компонента
 
+  // Функция для загрузки настроек из localStorage при загрузке компонента
+  useEffect(() => {
+    const storedDisplayModeBar = localStorage.getItem('displayModeBar');
+    if (storedDisplayModeBar !== null) {
+      setDisplayModeBar(JSON.parse(storedDisplayModeBar));
+    }
+
+    const storedDisplayAllOnPlot = localStorage.getItem('displayAllOnPlot');
+    if (storedDisplayAllOnPlot !== null) {
+      setDisplayAllOnPlot(JSON.parse(storedDisplayAllOnPlot));
+    }
+
+    const storedDisplayLog = localStorage.getItem('displayLog');
+    if (storedDisplayLog !== null) {
+      setDisplayLog(JSON.parse(storedDisplayLog));
+    }
+
+    const storedDisplayAllFanResults = localStorage.getItem('displayAllFanResults');
+    if (storedDisplayAllFanResults !== null) {
+      setDisplayAllFanResults(JSON.parse(storedDisplayAllFanResults));
+    }
+
+    const storedScale = localStorage.getItem('scale');
+    if (storedScale !== null) {
+      setScale(JSON.parse(storedScale));
+    }
+  }, []);
+
   const plotRef = useRef(null);
 
   const addResultsToHistory = (newResult) => {
@@ -109,7 +139,9 @@ function Main({
   // Обработка инпута изменения названия проекта
 
   const projectNameValueChange = (e) => {
-    setProjectNameValue(e.target.value);
+    if (NAME_VALIDATION_REGEXP.test(e.target.value)) {
+      setProjectNameValue(e.target.value);
+    }
   };
 
   // Обработка инпутов ввода расхода воздуха и давления
@@ -335,6 +367,10 @@ function Main({
             isProjectNameLocked={isProjectNameLocked}
             setIsProjectNameLocked={setIsProjectNameLocked}
             chartDataSets={chartDataSets}
+            displayAllOnPlot={displayAllOnPlot}
+            setDisplayAllOnPlot={setDisplayAllOnPlot}
+            displayAllFanResults={displayAllFanResults}
+            setDisplayAllFanResults={setDisplayAllFanResults}
           />
         } />
         <Route path="/results" element={

@@ -34,6 +34,10 @@ function Calculator({
   isProjectNameLocked,
   setIsProjectNameLocked,
   chartDataSets,
+  displayAllOnPlot,
+  setDisplayAllOnPlot,
+  displayAllFanResults,
+  setDisplayAllFanResults,
 }) {
 
   // Выбор вентилятора при наведении и по клику. Наведение setHoveredFan используется для изменение цвета линии графика соответствующего вентилятора.
@@ -41,8 +45,6 @@ function Calculator({
 
   const [selectedFan, setSelectedFan] = useState(null);
   const [hoveredFan, setHoveredFan] = useState(null);
-  const [displayAllOnPlot, setDisplayAllOnPlot] = useState(false);
-  const [displayAllFanResults, setDisplayAllFanResults] = useState(false);
 
   // Создаем изображение из компонента
   const generatePlotImage = async () => {
@@ -179,6 +181,10 @@ Calculator.propTypes = {
   isProjectNameLocked: PropTypes.bool,
   setIsProjectNameLocked: PropTypes.func,
   chartDataSets: PropTypes.array,
+  displayAllOnPlot: PropTypes.bool,
+  setDisplayAllOnPlot: PropTypes.func,
+  displayAllFanResults: PropTypes.bool,
+  setDisplayAllFanResults: PropTypes.func,
 };
 
 export default Calculator;

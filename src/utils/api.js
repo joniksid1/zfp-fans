@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.97.110/api';
+export const BASE_URL = 'http://192.168.97.110';
 // стандартный ниже
 // export const BASE_URL = 'http://localhost:3000';
 

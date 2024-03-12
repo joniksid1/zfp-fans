@@ -82,7 +82,7 @@ function CalculationResults({
             console.log('Текстовые данные', text);
           }
         } catch (error) {
-          setError(`Ошибка при создании файлов технических листов. ${JSON.parse(error.message).error}`);
+          setError(`Ошибка при создании файлов технических листов. ${error}`);
         }
       });
 

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import FanDataModal from './fan-data-modal';
+import zfrImage from '../images/zfr.png';
 
 function FanList({
   correctFanResults,
@@ -62,7 +63,7 @@ function FanList({
               onMouseEnter={() => handleFanHover(result.fanName)}
               onMouseLeave={() => handleFanHover(null)}
             >
-              <img src='../images/zfr.png' alt="Изображение крышного вентилятора" className="fan-list__image" />
+              <img src={zfrImage} alt="Изображение крышного вентилятора" className="fan-list__image" />
               <div className="fan-list__wrapper">
                 <span className="fan-list__fan-name">{result.fanName}</span>
                 <span className="fan-list__result">{`+ ${result.flowDeviation}%`}</span>

@@ -1,18 +1,21 @@
-const {
-  MODE = 'dev',
-} = import.meta.env;
+// const {
+//   MODE = 'dev',
+// } = import.meta.env;
 
-let baseUrl;
+// let baseUrl;
 
-if (MODE === 'production') {
-  baseUrl = 'http://192.168.97.110/api';
-} else if (MODE === 'production-secure') {
-  baseUrl = 'https://192.168.97.110/api';
-} else {
-  baseUrl = 'http://localhost:3000';
-}
+// if (MODE === 'production') {
+//   baseUrl = 'http://192.168.97.110/api';
+// } else if (MODE === 'production-secure') {
+//   baseUrl = 'https://192.168.97.110/api';
+// } else {
+//   baseUrl = 'http://localhost:3000';
+// }
 
-export const BASE_URL = baseUrl;
+// export const BASE_URL = baseUrl;
+
+// Временно устанвавливаю вне зависимости от переменных окружения для теста https
+export const BASE_URL = 'https://192.168.97.110/api';
 
 export const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
   return fetch(`${BASE_URL}/${endpoint}`, {

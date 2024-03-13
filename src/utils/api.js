@@ -5,9 +5,9 @@ const {
 let baseUrl;
 
 if (MODE === 'production') {
-  baseUrl = 'http://192.168.97.110';
+  baseUrl = 'http://192.168.97.110/api';
 } else if (MODE === 'production-secure') {
-  baseUrl = 'https://192.168.97.110';
+  baseUrl = 'https://192.168.97.110/api';
 } else {
   baseUrl = 'http://localhost:3000';
 }

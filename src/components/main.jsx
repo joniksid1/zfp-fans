@@ -8,6 +8,7 @@ import { FLOW_INPUT_REGEXP, PRESSURE_INPUT_REGEXP, NAME_VALIDATION_REGEXP } from
 import { getFanModels, getFanDataPoints } from '../utils/api';
 import getChartDataSets from '../utils/chart-config';
 import formatFanName from '../utils/format-name';
+import ErrorModal from './error-modal';
 
 function Main({
   view,
@@ -35,6 +36,7 @@ function Main({
   const [dataSheetLoading, setDataSheetLoading] = useState(false);
   const [commercialLoading, setCommercialLoading] = useState(false);
   const [isProjectNameLocked, setIsProjectNameLocked] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,15 +88,15 @@ function Main({
                 // Создаём и устанавливаем конфигурацию графика
                 setChartDataSets(getChartDataSets());
               } else {
-                console.error(`Не найдены данные по точкам графика для: ${fanModel}`);
+                setError(`Не найдены данные по точкам графика для: ${fanModel}`);
               }
             } catch (error) {
-              console.error('Ошибка при обработке данных:', error.message);
+              setError(`Ошибка при обработке данных: ${error}`);
             }
           }));
         }
       } catch (error) {
-        console.error('Ошибка при запросе данных названия и точек графика вентилятора:', error.message);
+        setError(`Ошибка при запросе данных названия и точек графика вентилятора: ${error}`);
       }
     };
 
@@ -320,7 +322,7 @@ function Main({
       if (fanData && Array.isArray(fanData)) {
         calculateFan(fanData, fanModel);
       } else {
-        console.error(`Не найдено данных по точкам графика для: ${fanModel}`);
+        setError(`Не найдено данных по точкам графика для: ${fanModel}`)
       }
     });
 
@@ -389,6 +391,7 @@ function Main({
           />
         } />
       </Routes>
+      {error && <ErrorModal error={error} onClose={() => setError(null)} />}
       {view === 'form' && displayLog &&
         <section className='log'>
           <h2 className='log__title'>

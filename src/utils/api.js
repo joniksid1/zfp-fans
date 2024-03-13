@@ -1,6 +1,18 @@
-export const BASE_URL = 'http://192.168.97.110';
-// стандартный ниже
-// export const BASE_URL = 'http://localhost:3000';
+const {
+  MODE = 'dev',
+} = import.meta.env;
+
+let baseUrl;
+
+if (MODE === 'production') {
+  baseUrl = 'http://192.168.97.110';
+} else if (MODE === 'production-secure') {
+  baseUrl = 'https://192.168.97.110';
+} else {
+  baseUrl = 'http://localhost:3000';
+}
+
+export const BASE_URL = baseUrl;
 
 export const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
   return fetch(`${BASE_URL}/${endpoint}`, {

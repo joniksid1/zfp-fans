@@ -159,7 +159,7 @@ function FanDataModal({
         className="modal__checkbox"
         checked={displayAllSockets}
         onChange={handleSocketsDisplay}
-        disabled={fanName === "ZFR 1,9-2E"}
+        disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
       />
       <label htmlFor="selectSockets" className="modal__label modal__label_type_option">
         Монтажный стакан:
@@ -174,8 +174,8 @@ function FanDataModal({
               className="modal__checkbox"
               checked={selectFlatRoofSocket}
               onChange={() => setSelectFlatRoofSocket(!selectFlatRoofSocket)}
-              disabled={fanName === "ZFR 1,9-2E"}
-            />
+              disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
+              />
             <label htmlFor="selectFlatRoofSocket" className="modal__label modal__label_type_option">
               Для плоской кровли
             </label>
@@ -185,8 +185,8 @@ function FanDataModal({
               className="modal__checkbox"
               checked={selectFlatRoofSocketSilencer}
               onChange={() => setSelectFlatRoofSocketSilencer(!selectFlatRoofSocketSilencer)}
-              disabled={fanName === "ZFR 1,9-2E"}
-            />
+              disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
+              />
             <label htmlFor="selectPitchedRoofSocket" className="modal__label modal__label_type_option">
               Для плоской кровли с шумоглушением
             </label>
@@ -196,8 +196,8 @@ function FanDataModal({
               className="modal__checkbox"
               checked={selectSlantRoofSocketSilencer}
               onChange={() => setSelectSlantRoofSocketSilencer(!selectSlantRoofSocketSilencer)}
-              disabled={fanName === "ZFR 1,9-2E"}
-            />
+              disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
+              />
             <label htmlFor="selectSlantRoofSocketSilencer" className="modal__label modal__label_type_option">
               Для наклонной кровли с шумоглушением
             </label>
@@ -211,7 +211,7 @@ function FanDataModal({
         className="modal__checkbox"
         checked={selectBackDraftDamper}
         onChange={() => setSelectBackDraftDamper(!selectBackDraftDamper)}
-        disabled={fanName === "ZFR 1,9-2E"}
+        disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
       />
       <label htmlFor="selectBackDraftDamper" className="modal__label modal__label_type_option">
         Обратный клапан
@@ -222,7 +222,7 @@ function FanDataModal({
         className="modal__checkbox"
         checked={selectFlexibleConnector}
         onChange={() => setSelectFlexibleConnector(!selectFlexibleConnector)}
-        disabled={fanName === "ZFR 1,9-2E"}
+        disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
       />
       <label htmlFor="selectFlexibleConnector" className="modal__label modal__label_type_option">
         Гибкая вставка
@@ -233,7 +233,7 @@ function FanDataModal({
         className="modal__checkbox"
         checked={selectFlange}
         onChange={() => setSelectFlange(!selectFlange)}
-        disabled={fanName === "ZFR 1,9-2E"}
+        disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
       />
       <label htmlFor="selectFlange" className="modal__label modal__label_type_option">
         Фланец

@@ -90,7 +90,7 @@ function CalculationResults({
       await Promise.all(promises);
       setDataSheetLoading(false);
     } catch (error) {
-      console.error('Ошибка при создании файлов технических листов', error);
+      setError('Ошибка при создании файлов технических листов', error);
     } finally {
       setDataSheetLoading(false);
     }

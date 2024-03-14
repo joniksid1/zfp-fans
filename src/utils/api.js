@@ -14,8 +14,8 @@
 
 // export const BASE_URL = baseUrl;
 
-// Временно устанвавливаю вне зависимости от переменных окружения для теста https
-export const BASE_URL = 'https://192.168.97.110/api';
+// Временно устанвавливаю вне зависимости от переменных окружения для теста http
+export const BASE_URL = 'http://192.168.97.110/api';
 
 export const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
   return fetch(`${BASE_URL}/${endpoint}`, {

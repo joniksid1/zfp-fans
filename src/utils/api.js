@@ -15,7 +15,8 @@
 // export const BASE_URL = baseUrl;
 
 // Временно устанвавливаю вне зависимости от переменных окружения для теста http
-export const BASE_URL = 'http://192.168.97.110/api';
+// export const BASE_URL = 'http://192.168.97.110/api';
+export const BASE_URL = 'http://localhost:3000';
 
 export const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
   return fetch(`${BASE_URL}/${endpoint}`, {
@@ -46,8 +47,8 @@ export const getCommercial = (historyItem) => {
   return fetchDataSheetOrCommercial(historyItem, 'offer', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 };
 
-export const getDataSheet = (historyItem) => {
-  return fetchDataSheetOrCommercial(historyItem, 'data-sheet', 'application/pdf');
+export const getDataSheet = (filteredHistory) => {
+  return fetchDataSheetOrCommercial(filteredHistory, 'data-sheet', 'application/pdf');
 };
 
 export const getFanModels = () => {

@@ -5,6 +5,8 @@ import ProjectNameModal from './project-name-modal';
 import ConfirmModal from './confirm-modal';
 import Preloader from './preloader';
 import ErrorModal from './error-modal';
+import JSZip from 'jszip';
+import { v4 as uuid } from 'uuid';
 
 function CalculationResults({
   resultsHistory,
@@ -16,25 +18,31 @@ function CalculationResults({
   setCommercialLoading,
   projectNameValue,
   projectNameValueChange,
-  setProjectNameValue,
-  setIsProjectNameLocked,
 }) {
-
   const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedItems, setSelectedItems] = useState(new Array(resultsHistory.length).fill(false));
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const openProjecNameModal = () => {
     setIsProjectNameModalOpen(true);
   };
 
-  const openConfirmModal = () => {
-    setIsConfirmModalOpen(true);
+  const openDeleteConfirmModal = () => {
+    setIsDeleteConfirmModalOpen(true);
   };
 
   const closeModals = () => {
     setIsProjectNameModalOpen(false);
-    setIsConfirmModalOpen(false);
+    setIsDeleteConfirmModalOpen(false);
+  };
+
+// Функция для подтверждения удаления выбранных элементов
+  const handleConfirmDelete = () => {
+    handleDeleteSelectedItems();
+    closeModals();
   };
 
   const getComponentName = (option) => {
@@ -54,44 +62,70 @@ function CalculationResults({
   const downloadDataSheet = async () => {
     try {
       setDataSheetLoading(true);
+      const selectedHistoryItems = resultsHistory.filter((historyItem, index) => selectedItems[index]);
 
-      const promises = resultsHistory.map(async (historyItem) => {
-        try {
-          historyItem.projectNameValue = projectNameValue;
-          const response = await getDataSheet(historyItem);
+      if (selectedHistoryItems.length === 1) {
+        // Если выбран только один элемент, скачиваем его без архивации
+        const historyItem = selectedHistoryItems[0];
+        historyItem.projectNameValue = projectNameValue;
+        const response = await getDataSheet(historyItem);
+        const contentType = response.headers?.get('content-type');
 
-          const contentType = response.headers?.get('content-type');
-
-          if (contentType && contentType.includes('application/pdf')) {
-            // Преобразовываем ответ в Blob
-            const blob = await response.blob();
-
-            // Создаем ссылку и автоматически запускаем скачивание
-            const fileURL = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = fileURL;
-            a.download = `${historyItem.systemNameValue}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-
-            // Очищаем ссылку после скачивания
-            URL.revokeObjectURL(fileURL);
-          } else {
-            // Если тип контента не PDF, обрабатываем его как текст
-            const text = await response.text();
-            console.log('Текстовые данные', text);
-          }
-        } catch (error) {
-          setError(`Ошибка при создании файлов технических листов. ${error}`);
+        if (contentType && contentType.includes('application/pdf')) {
+          const blob = await response.blob();
+          const uniqueId = uuid(); // Генерируем уникальный идентификатор
+          const fileURL = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = fileURL;
+          a.download = `${historyItem.systemNameValue}_${uniqueId}.pdf`; // Добавляем уникальный идентификатор к имени файла
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(fileURL);
+        } else {
+          const text = await response.text();
+          console.log('Текстовые данные', text);
         }
-      });
+      } else if (selectedHistoryItems.length > 1) {
+        // Если выбрано более одного элемента, создаем архив
+        const zip = new JSZip();
 
-      // Ждем завершения всех запросов
-      await Promise.all(promises);
+        await Promise.all(selectedHistoryItems.map(async (historyItem) => {
+          try {
+            historyItem.projectNameValue = projectNameValue;
+            const response = await getDataSheet(historyItem);
+            const contentType = response.headers?.get('content-type');
+
+            if (contentType && contentType.includes('application/pdf')) {
+              const blob = await response.blob();
+              const uniqueId = uuid(); // Генерируем уникальный идентификатор
+              const fileName = `${historyItem.systemNameValue}_${uniqueId}.pdf`; // Добавляем уникальный идентификатор к имени файла
+              zip.file(fileName, blob); // Добавляем файл в архив
+            } else {
+              const text = await response.text();
+              console.log('Текстовые данные', text);
+            }
+          } catch (error) {
+            setError(`Ошибка при создании файлов технических листов. ${error}`);
+          }
+        }));
+
+        // Генерируем архив и скачиваем его
+        zip.generateAsync({ type: 'blob' }).then((content) => {
+          const fileURL = URL.createObjectURL(content);
+          const a = document.createElement('a');
+          a.href = fileURL;
+          a.download = 'technical_sheets.zip'; // Имя архива
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(fileURL);
+        });
+      } else {
+        // Если ни один элемент не выбран, не делаем ничего
+      }
+
       setDataSheetLoading(false);
     } catch (error) {
       setError('Ошибка при создании файлов технических листов', error);
-    } finally {
       setDataSheetLoading(false);
     }
   };
@@ -100,26 +134,23 @@ function CalculationResults({
     try {
       setCommercialLoading(true);
 
-      const response = await getCommercial(resultsHistory);
+      const selectedHistoryItems = resultsHistory.filter((historyItem, index) => selectedItems[index]);
+      // eslint-disable-next-line no-unused-vars
+      const filteredHistory = selectedHistoryItems.map(({ plotImage, ...rest }) => rest);
 
+      const response = await getCommercial(filteredHistory);
       const contentType = response.headers?.get('content-type');
 
       if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-        // Преобразовываем ответ в Blob
         const blob = await response.blob();
-
-        // Создаем ссылку и автоматически запускаем скачивание
         const fileURL = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = fileURL;
         a.download = `${projectNameValue}.xlsx`;
         document.body.appendChild(a);
         a.click();
-
-        // Очищаем ссылку после скачивания
         URL.revokeObjectURL(fileURL);
       } else {
-        // Если тип контента не xlsx, обрабатываем его как текст
         const text = await response.text();
         console.log('Текстовые данные', text);
         setError(`Ошибка при создании файла ТКП. ${error}`);
@@ -132,16 +163,115 @@ function CalculationResults({
     }
   };
 
-  const clearHistory = () => {
-    setResultsHistory([]);
-    setProjectNameValue('');
-    setIsProjectNameLocked(false);
+  const handleCheckboxChange = (index) => {
+    setSelectedItems((prevState) => {
+      const newSelectedItems = [...prevState];
+      newSelectedItems[index] = !newSelectedItems[index];
+      return newSelectedItems;
+    });
   };
 
-  const handleConfirmSubmit = () => {
-    clearHistory();
-    closeModals();
-  }
+  const handleSelectAll = () => {
+    const allItemsSelected = selectedItems.every((item) => item);
+    const newSelectedItems = [];
+    if (allItemsSelected) {
+      resultsHistory.forEach((_, index) => {
+        newSelectedItems[index] = false;
+      });
+    } else {
+      resultsHistory.forEach((_, index) => {
+        newSelectedItems[index] = true;
+      });
+    }
+    setSelectedItems(newSelectedItems);
+  };
+
+  const isAnyItemSelected = selectedItems.some((item) => item);
+
+  const handleDeleteSelectedItems = () => {
+    const newResultsHistory = resultsHistory.filter((_, index) => !selectedItems[index]);
+    setResultsHistory(newResultsHistory);
+    setSelectedItems(new Array(newResultsHistory.length).fill(false));
+  };
+
+  const handleDragStart = (index) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (index) => {
+    if (draggedIndex !== null && draggedIndex !== index) {
+      const draggedItem = resultsHistory[draggedIndex];
+      const updatedResultsHistory = [...resultsHistory];
+      updatedResultsHistory.splice(draggedIndex, 1);
+      updatedResultsHistory.splice(index, 0, draggedItem);
+      setResultsHistory(updatedResultsHistory);
+      setDraggedIndex(index);
+    }
+  };
+
+  // Функция для обновления состояния при наведении курсора
+  const handleDragEnter = (index) => {
+    if (draggedIndex !== null) {
+      setHoveredIndex(index);
+    }
+  };
+
+  // Функция для обновления состояния при окончании перетаскивания
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setHoveredIndex(null);
+  };
+
+  // Функция для изменения стилей в зависимости от состояний draggedIndex и hoveredIndex
+  const getRowClassName = (index) => {
+    if (index === draggedIndex) {
+      return 'calculation-results__table-row calculation-results__table-row_dragged';
+    }
+    if (index === hoveredIndex) {
+      return 'calculation-results__table-row calculation-results__table-row_hovered';
+    }
+    return 'calculation-results__table-row';
+  };
+
+  // Реорганизация элементов при взадимодействии drag and drop
+  const rearrangeResultsHistory = (historyItem, index) => {
+    return (
+      <tr
+        className={getRowClassName(index)}
+        key={index}
+        draggable
+        onDragStart={() => handleDragStart(index)}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={() => handleDragOver(index)}
+        onDragEnter={() => handleDragEnter(index)}
+        onDragEnd={handleDragEnd}
+      >
+        <td>
+          <input
+            className="calculation-results__checkbox"
+            type="checkbox"
+            checked={selectedItems[index]}
+            onChange={() => handleCheckboxChange(index)}
+          />
+        </td>
+        <td className="calculation-results__table-data">{historyItem.systemNameValue}</td>
+        <td className="calculation-results__table-data">{historyItem.fanName}</td>
+        <td className="calculation-results__table-data">{historyItem.flowRateValue}</td>
+        <td className="calculation-results__table-data">{historyItem.staticPressureValue}</td>
+        <td className="calculation-results__table-data">
+          <ul className="calculation-results__options-list">
+            {Object.entries(historyItem.selectedOptions).map(([option, value]) => (
+              value && (
+                <li key={option} className="calculation-results__options-item">
+                  {getComponentName(option)}
+                </li>
+              )
+            ))}
+          </ul>
+        </td>
+      </tr>
+    );
+  };
 
   return (
     <>
@@ -160,10 +290,10 @@ function CalculationResults({
         <div className="calculation-results__wrapper">
           <button
             className="calculation-results__button"
-            onClick={openConfirmModal}
-            disabled={resultsHistory.length === 0}
+            disabled={!isAnyItemSelected}
+            onClick={openDeleteConfirmModal}
           >
-            Очистить историю
+            Удалить выбранные
           </button>
           <button className="calculation-results__button" onClick={switchToForm}>
             Вернуться
@@ -172,14 +302,21 @@ function CalculationResults({
           </button>
           <button
             className="calculation-results__button"
+            onClick={handleSelectAll}
             disabled={resultsHistory.length === 0}
+          >
+            Выбрать все
+          </button>
+          <button
+            className="calculation-results__button"
+            disabled={resultsHistory.length === 0 || !isAnyItemSelected}
             onClick={() => downloadDataSheet()}
           >
             {dataSheetLoading ? 'Загрузка...' : 'Скачать тех. данные'}
           </button>
           <button
             className="calculation-results__button"
-            disabled={resultsHistory.length === 0}
+            disabled={resultsHistory.length === 0 || !isAnyItemSelected}
             onClick={() => downloadCommercial()}
           >
             {commercialLoading ? 'Загрузка...' : 'Скачать ТКП'}
@@ -190,40 +327,23 @@ function CalculationResults({
             <table className="calculation-results__table">
               <thead>
                 <tr>
+                  <th className="calculation-results__table-header">Выбрать</th>
                   <th className="calculation-results__table-header">Система</th>
                   <th className="calculation-results__table-header">Вентилятор</th>
                   <th className="calculation-results__table-header">Поток воздуха, м³/ч</th>
                   <th className="calculation-results__table-header">Давление сети, Па</th>
-                  <th className="calculation-results__table-header">Выбранные опции</th>
+                  <th className="calculation-results__table-header">Подобранные опции</th>
                 </tr>
               </thead>
               <tbody>
-                {resultsHistory.map((historyItem, index) => (
-                  <tr className="calculation-results__table-row" key={index}>
-                    <td className="calculation-results__table-data">{historyItem.systemNameValue}</td>
-                    <td className="calculation-results__table-data">{historyItem.fanName}</td>
-                    <td className="calculation-results__table-data">{historyItem.flowRateValue}</td>
-                    <td className="calculation-results__table-data">{historyItem.staticPressureValue}</td>
-                    <td className="calculation-results__table-data">
-                      <ul className="calculation-results__options-list">
-                        {Object.entries(historyItem.selectedOptions).map(([option, value]) => (
-                          value && (
-                            <li key={option} className="calculation-results__options-item">
-                              {getComponentName(option)}
-                            </li>
-                          )
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
-                ))}
+                {resultsHistory.map((historyItem, index) => rearrangeResultsHistory(historyItem, index))}
               </tbody>
             </table>
           </div>
         ) : (
           <p className="calculation-results__text calculation-results__text_type_bottom">Рассчитанных вентиляторов нет, начните расчёт</p>
         )}
-      </div>
+      </div >
       <ProjectNameModal
         isProjectNameModalOpen={isProjectNameModalOpen}
         closeModals={closeModals}
@@ -231,9 +351,9 @@ function CalculationResults({
         projectNameValueChange={projectNameValueChange}
       />
       <ConfirmModal
-        isConfirmModalOpen={isConfirmModalOpen}
+        isConfirmModalOpen={isDeleteConfirmModalOpen}
         closeModals={closeModals}
-        handleConfirmSubmit={handleConfirmSubmit}
+        handleConfirmSubmit={handleConfirmDelete}
       />
       {commercialLoading && <Preloader />}
       {dataSheetLoading && <Preloader />}
@@ -260,8 +380,6 @@ CalculationResults.propTypes = {
   setCommercialLoading: PropTypes.func,
   projectNameValue: PropTypes.string,
   projectNameValueChange: PropTypes.func,
-  setProjectNameValue: PropTypes.func,
-  setIsProjectNameLocked: PropTypes.func,
 };
 
 export default CalculationResults;

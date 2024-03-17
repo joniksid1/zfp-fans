@@ -386,8 +386,6 @@ function Main({
             setCommercialLoading={setCommercialLoading}
             projectNameValue={projectNameValue}
             projectNameValueChange={projectNameValueChange}
-            setProjectNameValue={setProjectNameValue}
-            setIsProjectNameLocked={setIsProjectNameLocked}
           />
         } />
       </Routes>

@@ -175,7 +175,7 @@ function FanDataModal({
               checked={selectFlatRoofSocket}
               onChange={() => setSelectFlatRoofSocket(!selectFlatRoofSocket)}
               disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
-              />
+            />
             <label htmlFor="selectFlatRoofSocket" className="modal__label modal__label_type_option">
               Для плоской кровли
             </label>
@@ -186,7 +186,7 @@ function FanDataModal({
               checked={selectFlatRoofSocketSilencer}
               onChange={() => setSelectFlatRoofSocketSilencer(!selectFlatRoofSocketSilencer)}
               disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
-              />
+            />
             <label htmlFor="selectPitchedRoofSocket" className="modal__label modal__label_type_option">
               Для плоской кровли с шумоглушением
             </label>
@@ -197,7 +197,7 @@ function FanDataModal({
               checked={selectSlantRoofSocketSilencer}
               onChange={() => setSelectSlantRoofSocketSilencer(!selectSlantRoofSocketSilencer)}
               disabled={fanName === "ZFR 1,9-2E" || fanName === "ZFR 2,2-2E"}
-              />
+            />
             <label htmlFor="selectSlantRoofSocketSilencer" className="modal__label modal__label_type_option">
               Для наклонной кровли с шумоглушением
             </label>
@@ -248,7 +248,13 @@ function FanDataModal({
       <label htmlFor="selectRegulator" className="modal__label modal__label_type_option">
         Регулятор скорости
       </label>
-      <button className='modal__button' onClick={handleModalConfirm}>{loading ? 'Сохранение...' : 'Сохранить'}</button>
+      <button
+        className='modal__button'
+        onClick={handleModalConfirm}
+        disabled={loading}
+      >
+        {loading ? 'Сохранение...' : 'Сохранить'}
+      </button>
     </Modal>
   );
 }

@@ -9,6 +9,7 @@ import { getFanModels, getFanDataPoints } from '../utils/api';
 import getChartDataSets from '../utils/chart-config';
 import formatFanName from '../utils/format-name';
 import ErrorModal from './error-modal';
+import { findIntersection } from '../utils/find-intersection';
 
 function Main({
   view,
@@ -24,6 +25,7 @@ function Main({
   const [logMessages, setLogMessages] = useState([]);
   const [newPoint, setNewPoint] = useState(null);
   const [perpendicularLines, setPerpendicularLines] = useState([]);
+  const [intersectionPoints, setIntersectionPoints] = useState([]);
   const [calculatedLine, setCalculatedLine] = useState(null);
   const [displayModeBar, setDisplayModeBar] = useState(false);
   const [displayLog, setDisplayLog] = useState(true);
@@ -192,44 +194,28 @@ function Main({
     return points[points.length - 1].y;
   }
 
-  // Обратная интерполяция для вычисления x (м3/ч) по заданному y (Па)
+  // Расчёт каждой точки графика вентилятора для нахождения пересечения с графиком сети
 
-  function inverseInterpolateX(y, points) {
-    if (y >= points[0].y) {
-      return points[0].x;
+  const generateDataPoints = (dataPoints, maxXValue) => {
+    const generatedDataPoints = [];
+    for (let x = 0; x <= maxXValue; x++) {
+      const y = interpolateY(x, dataPoints);
+      generatedDataPoints.push({ x, y });
     }
-
-    for (let i = 1; i < points.length; i++) {
-      if (y > points[i].y) {
-        const x0 = points[i - 1].x;
-        const y0 = points[i - 1].y;
-        const x1 = points[i].x;
-        const y1 = points[i].y;
-
-        const ratio = (y - y0) / (y1 - y0);
-        return x0 + ratio * (x1 - x0);
-      }
-    }
-
-    return points[points.length - 1].x;
+    return generatedDataPoints;
   }
 
   // Расчёт вентилятора с записью сообщений в стейты и логи
 
-  const calculateFan = (dataPoints, fanName) => {
+  const calculateFan = (dataPoints, fanName, flowDeviation, staticPressureDeviation) => {
     const maxXValue = Math.max(...dataPoints.map(point => point.x));
     const xValue = parseFloat(flowRateValue);
 
     const yValue = parseFloat(staticPressureValue);
 
+    // Меняем на отклонение от фактической рабочей точки
     const interpolatedY = interpolateY(xValue, dataPoints);
-    const interpolatedX = inverseInterpolateX(yValue, dataPoints);
-
     let resultMessage;
-
-    const flowDeviation = Math.round((interpolatedX - xValue) / xValue * 100);
-
-    const staticPressureDeviation = Math.round((interpolatedY - yValue) / yValue * 100);
 
     if (xValue <= maxXValue && xValue > 0) {
       if (yValue <= interpolatedY) {
@@ -267,7 +253,7 @@ function Main({
     ]);
   };
 
-  // Установка заданной точки, линии сопротивления сети и перпендикулярных линий на графике при расчёте
+  // Установка заданной точки, линии сопротивления сети, фактической рабочей точки и перпендикулярных линий на графике при расчёте
   const setPointWithLinesOnChart = () => {
     const xValue = parseFloat(flowRateValue);
     const yValue = parseFloat(staticPressureValue);
@@ -288,7 +274,7 @@ function Main({
       const k = yValue / (xValue ** 2);
 
       const calculatedLinePoints = [];
-      for (let v = 0; v <= maxXValue; v += 100) {
+      for (let v = 0; v <= maxXValue; v += 1) {
         const p = k * v ** 2;
         calculatedLinePoints.push({ x: v, y: p });
       }
@@ -305,6 +291,27 @@ function Main({
       setNewPoint(newPoint);
       setPerpendicularLines(perpendicularLines);
       setCalculatedLine(networkResistanceLine);
+
+      fanModels.forEach((fanModel) => {
+        const fanData = fanDataPoints[fanModel];
+        if (fanData && Array.isArray(fanData)) {
+          const maxXValue = Math.max(...fanData.map(point => point.x));
+
+          const generatedDataPoints = generateDataPoints(fanData, maxXValue);
+
+          // Поиск пересечения для нахождения фактической рабочей точки вентилятора
+          const intersection = findIntersection(generatedDataPoints, calculatedLinePoints, fanModel);
+
+          setIntersectionPoints((prevPoints) => [...prevPoints, ...intersection]);
+
+          const flowDeviation = Math.round((intersection[0].x - xValue) / xValue * 100);
+          const staticPressureDeviation = Math.round((intersection[0].y - yValue) / yValue * 100);
+
+          calculateFan(fanData, fanModel, flowDeviation, staticPressureDeviation);
+        } else {
+          setError(`Не найдено данных по точкам графика для: ${fanModel}`)
+        }
+      });
     }
   }
 
@@ -315,16 +322,7 @@ function Main({
 
     setAllFanResults([]);
     setCorrectFanResults([]);
-
-    // Используем пришедшие с бэка данные модели и по точкам графика вентиляторов
-    fanModels.forEach(async (fanModel) => {
-      const fanData = fanDataPoints[fanModel];
-      if (fanData && Array.isArray(fanData)) {
-        calculateFan(fanData, fanModel);
-      } else {
-        setError(`Не найдено данных по точкам графика для: ${fanModel}`)
-      }
-    });
+    setIntersectionPoints([]);
 
     setPointWithLinesOnChart();
   };
@@ -373,6 +371,7 @@ function Main({
             setDisplayAllOnPlot={setDisplayAllOnPlot}
             displayAllFanResults={displayAllFanResults}
             setDisplayAllFanResults={setDisplayAllFanResults}
+            intersectionPoints={intersectionPoints}
           />
         } />
         <Route path="/results" element={

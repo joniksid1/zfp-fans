@@ -38,6 +38,7 @@ function Calculator({
   setDisplayAllOnPlot,
   displayAllFanResults,
   setDisplayAllFanResults,
+  intersectionPoints,
 }) {
 
   // Выбор вентилятора при наведении и по клику. Наведение setHoveredFan используется для изменение цвета линии графика соответствующего вентилятора.
@@ -68,6 +69,7 @@ function Calculator({
               correctFanResults={correctFanResults}
               displayAllOnPlot={displayAllOnPlot}
               chartDataSets={chartDataSets}
+              intersectionPoints={intersectionPoints}
             />
         </div>
         {/* view переключается по нажатию на опции контекстного меню "бургера" */}
@@ -185,6 +187,7 @@ Calculator.propTypes = {
   setDisplayAllOnPlot: PropTypes.func,
   displayAllFanResults: PropTypes.bool,
   setDisplayAllFanResults: PropTypes.func,
+  intersectionPoints: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default Calculator;

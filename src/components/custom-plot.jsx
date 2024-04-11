@@ -13,71 +13,115 @@ function CustomPlot({
   correctFanResults,
   displayAllOnPlot,
   chartDataSets,
+  intersectionPoints,
 }) {
   const [revision, setRevision] = useState(0);
 
-  // Выбор цвета линии в зависимости от наведения на список вентиляторов в результате расчёта
   const getLineColor = useCallback(
     (fanName) => {
       if (selectedFan && fanName === selectedFan) {
-        return 'red'; // Если вентилятор выбран, цвет - красный
+        return 'red';
       } else if (hoveredFan && fanName === hoveredFan) {
-        return 'red'; // Если вентилятор наведен, цвет - красный
+        return 'red';
       } else {
         const matchingDataset = chartDataSets.find((dataset) => dataset && dataset.name === fanName);
-        if (matchingDataset) {
-          return matchingDataset.line.color;
-        }
-        return 'rgb(152, 152, 152)';
+        return matchingDataset ? matchingDataset.line.color : 'rgb(152, 152, 152)';
       }
     },
     [selectedFan, hoveredFan, chartDataSets]
   );
 
-  // Обновление линий графиков вентиляторов в зависимости от результата расчётов и выбранного вентилятора
   const updatedDataSets = useMemo(() => {
     return (chartDataSets || []).map((dataset) => {
-      // Проверяем, что dataset не является нулевым и имеет свойство 'name'
       if (dataset && dataset.name) {
         const fanResult = correctFanResults.find((result) => result.fanName === dataset.name);
-        const color = getLineColor(dataset.name) || 'rgb(152, 152, 152)';
+        const color = getLineColor(dataset.name);
 
         if ((displayAllOnPlot || fanResult) && (selectedFan === dataset.name || !selectedFan)) {
           return {
             ...dataset,
-            line: {
-              ...dataset.line,
-              color: color,
-            },
+            line: { ...dataset.line, color },
           };
         }
       }
-
-      // Если dataset нулевой или не имеет свойства 'name', возвращаем null
       return null;
     }).filter(Boolean);
   }, [correctFanResults, getLineColor, displayAllOnPlot, selectedFan, chartDataSets]);
 
   useEffect(() => {
-    // Обновляем график
     setRevision((r) => r + 1);
-  }, [updatedDataSets, selectedFan, hoveredFan]); // Инициализация перерисовки компонента графика при изменении updatedDataSets, selectedFan или hoveredFan
+  }, [updatedDataSets, selectedFan, hoveredFan, intersectionPoints]);
+
+  const plotData = useMemo(() => {
+    let data = [];
+
+    // Добавляем графики. Если selectedFan указан, добавляем только его график.
+    if (selectedFan) {
+      const datasetForSelectedFan = chartDataSets.find(dataset => dataset.name === selectedFan);
+      if (datasetForSelectedFan) {
+        const color = getLineColor(selectedFan);
+        data.push({
+          ...datasetForSelectedFan,
+          line: { ...datasetForSelectedFan.line, color },
+        });
+      }
+    } else if (displayAllOnPlot) {
+      data = [...updatedDataSets];
+    } else {
+      // Если displayAllOnPlot выключен, но selectedFan не задан, добавляем графики, соответствующие correctFanResults
+      data = updatedDataSets.filter(dataset =>
+        correctFanResults.some(result => result.fanName === dataset.name)
+      );
+    }
+
+    // Добавляем новую точку
+    if (newPoint) {
+      data.push({
+        type: 'scatter',
+        mode: 'markers',
+        x: [newPoint.x],
+        y: [newPoint.y],
+        marker: { color: 'red', size: 8 },
+        name: 'Рабочая точка',
+      });
+    }
+
+    // Добавляем расчетные линии
+    if (calculatedLine) {
+      data.push(calculatedLine);
+    }
+
+    // Добавляем точки пересечения
+    let filteredIntersectionPoints = intersectionPoints;
+    if (selectedFan) {
+      // Если selectedFan задан, отображаем только его точку пересечения
+      filteredIntersectionPoints = intersectionPoints.filter(point => point.fanModel === selectedFan);
+    } else if (!displayAllOnPlot) {
+      // Если displayAllOnPlot выключен, отображаем точки, соответствующие correctFanResults
+      filteredIntersectionPoints = intersectionPoints.filter(point =>
+        correctFanResults.some(result => result.fanName === point.fanModel)
+      );
+    }
+
+    // Добавляем отфильтрованные точки пересечения
+    filteredIntersectionPoints.forEach(point => {
+      data.push({
+        type: 'scatter',
+        mode: 'markers',
+        x: [point.x],
+        y: [point.y],
+        marker: { color: 'blue', size: 8 },
+        name: `Фактическая рабочая точка для ${point.fanModel}`,
+      });
+    });
+
+    return data;
+  }, [updatedDataSets, newPoint, calculatedLine, intersectionPoints, correctFanResults, displayAllOnPlot, selectedFan, chartDataSets, getLineColor]);
 
   return (
     <Plot
       className="chart"
-      data={[
-        ...updatedDataSets,
-        newPoint && {
-          type: 'scatter',
-          mode: 'markers',
-          x: [newPoint.x],
-          y: [newPoint.y],
-          marker: { color: 'red', size: 8 },
-          name: 'Рабочая точка',
-        },
-        calculatedLine,
-      ].filter(Boolean)}
+      data={plotData}
       config={{
         displayModeBar: displayModeBar,
         editable: false,
@@ -87,14 +131,8 @@ function CustomPlot({
       }}
       layout={{
         title: 'График рабочей точки',
-        xaxis: {
-          title: 'Поток воздуха (м³/ч)',
-          range: [0, 16000 * scale],
-        },
-        yaxis: {
-          title: 'Давление сети (Па)',
-          range: [0, 1100 * scale],
-        },
+        xaxis: { title: 'Поток воздуха (м³/ч)', range: [0, 16000 * scale] },
+        yaxis: { title: 'Давление сети (Па)', range: [0, 1100 * scale] },
         shapes: perpendicularLines,
       }}
       revision={revision}
@@ -118,6 +156,7 @@ CustomPlot.propTypes = {
   ),
   displayAllOnPlot: PropTypes.bool,
   chartDataSets: PropTypes.array,
+  intersectionPoints: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default CustomPlot;

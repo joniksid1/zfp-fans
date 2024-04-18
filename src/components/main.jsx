@@ -207,7 +207,7 @@ function Main({
 
   // Расчёт вентилятора с записью сообщений в стейты и логи
 
-  const calculateFan = (dataPoints, fanName, flowDeviation, staticPressureDeviation) => {
+  const calculateFan = (dataPoints, fanName, flowDeviation, staticPressureDeviation, workingFlowRate, workingStaticPressure) => {
     const maxXValue = Math.max(...dataPoints.map(point => point.x));
     const xValue = parseFloat(flowRateValue);
 
@@ -226,23 +226,23 @@ function Main({
         }
         setCorrectFanResults((prevResults) => [
           ...prevResults,
-          { fanName, result: resultMessage, flowDeviation },
+          { fanName, result: resultMessage, flowDeviation, workingFlowRate, workingStaticPressure },
         ]);
         setAllFanResults((prevResults) => [
           ...prevResults,
-          { fanName, result: resultMessage, flowDeviation: `+${flowDeviation}` },
+          { fanName, result: resultMessage, flowDeviation: `+${flowDeviation}`, workingFlowRate, workingStaticPressure },
         ]);
       } else {
         setAllFanResults((prevResults) => [
           ...prevResults,
-          { fanName, result: resultMessage, flowDeviation },
+          { fanName, result: resultMessage, flowDeviation, workingFlowRate, workingStaticPressure },
         ]);
         resultMessage = `не хватает ${Math.round(yValue - interpolatedY)} Па для заданного расхода воздуха ${xValue} м3/ч, отклонение по расходу ${flowDeviation} %`;
       }
     } else {
       setAllFanResults((prevResults) => [
         ...prevResults,
-        { fanName, result: resultMessage, flowDeviation },
+        { fanName, result: resultMessage, flowDeviation, workingFlowRate, workingStaticPressure },
       ]);
       resultMessage = `расход воздуха ${xValue} м3/ч вне допустимого диапазона, максимальный расход для данного вентилятора ${maxXValue} м3/ч, отклонение по расходу ${flowDeviation} %`;
     }
@@ -304,10 +304,13 @@ function Main({
 
           setIntersectionPoints((prevPoints) => [...prevPoints, ...intersection]);
 
-          const flowDeviation = Math.round((intersection[0].x - xValue) / xValue * 100);
-          const staticPressureDeviation = Math.round((intersection[0].y - yValue) / yValue * 100);
+          const workingFlowRate = intersection[0].x;
+          const workingStaticPressure = intersection[0].y;
 
-          calculateFan(fanData, fanModel, flowDeviation, staticPressureDeviation);
+          const flowDeviation = Math.round((workingFlowRate - xValue) / xValue * 100);
+          const staticPressureDeviation = Math.round((workingStaticPressure - yValue) / yValue * 100);
+
+          calculateFan(fanData, fanModel, flowDeviation, staticPressureDeviation, workingFlowRate, workingStaticPressure);
         } else {
           setError(`Не найдено данных по точкам графика для: ${fanModel}`)
         }

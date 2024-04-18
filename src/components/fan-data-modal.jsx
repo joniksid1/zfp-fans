@@ -18,6 +18,8 @@ function FanDataModal({
   projectNameValueChange,
   isProjectNameLocked,
   setIsProjectNameLocked,
+  workingFlowRate,
+  workingStaticPressure,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
@@ -89,6 +91,8 @@ function FanDataModal({
         fanName,
         flowRateValue,
         staticPressureValue,
+        workingFlowRate,
+        workingStaticPressure,
         selectedOptions: {
           selectFlatRoofSocket,
           selectFlatRoofSocketSilencer,
@@ -274,6 +278,8 @@ FanDataModal.propTypes = {
   projectNameValueChange: PropTypes.func,
   isProjectNameLocked: PropTypes.bool,
   setIsProjectNameLocked: PropTypes.func,
+  workingFlowRate: PropTypes.number,
+  workingStaticPressure: PropTypes.number,
 };
 
 export default FanDataModal

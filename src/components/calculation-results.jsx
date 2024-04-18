@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getDataSheet, getCommercial } from '../utils/api';
 import ProjectNameModal from './project-name-modal';
 import ConfirmModal from './confirm-modal';
@@ -26,6 +26,12 @@ function CalculationResults({
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
+  useEffect(() => {
+    // Обновляем selectedItems каждый раз, когда изменяется resultsHistory
+    // Нужно для правильной простановки значений в checkbox
+    setSelectedItems(new Array(resultsHistory.length).fill(false));
+  }, [resultsHistory]);
+
   const openProjecNameModal = () => {
     setIsProjectNameModalOpen(true);
   };
@@ -43,6 +49,49 @@ function CalculationResults({
   const handleConfirmDelete = () => {
     handleDeleteSelectedItems();
     closeModals();
+  };
+
+  // Функция для сохранения resultsHistory в формате JSON
+  const handleSaveResultsHistory = () => {
+    const data = {
+      projectName: projectNameValue,  // Добавляем название проекта
+      resultsHistory: resultsHistory  // История результатов
+    };
+    const dataStr = JSON.stringify(data);
+    const fileURL = URL.createObjectURL(new Blob([dataStr], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = fileURL;
+    a.download = `${projectNameValue || 'resultsHistory'}.json`;
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(fileURL);
+  };
+
+  // Функция для загрузки resultsHistory из файла JSON
+  const handleLoadResultsHistory = async (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === "application/json") {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (data.projectName && data.resultsHistory) {
+          // Создаём искусственное событие с целью использовать существующую функцию валидации
+          const fakeEvent = {
+            target: {
+              value: data.projectName
+            }
+          };
+          projectNameValueChange(fakeEvent); // Передаем созданное "событие" в функцию
+          setResultsHistory(data.resultsHistory); // Обновляем историю результатов
+        } else {
+          setError('Формат файла некорректен.');
+        }
+      } catch (error) {
+        setError(`Ошибка при загрузке истории: ${error}`);
+      }
+    } else {
+      setError('Пожалуйста, загрузите файл в формате JSON.');
+    }
   };
 
   const getComponentName = (option) => {
@@ -250,7 +299,7 @@ function CalculationResults({
           <input
             className="calculation-results__checkbox"
             type="checkbox"
-            checked={selectedItems[index]}
+            checked={selectedItems[index] || false}
             onChange={() => handleCheckboxChange(index)}
           />
         </td>
@@ -321,6 +370,22 @@ function CalculationResults({
           >
             {commercialLoading ? 'Загрузка...' : 'Скачать ТКП'}
           </button>
+          <button
+            className="calculation-results__button"
+            onClick={handleSaveResultsHistory}
+            disabled={resultsHistory.length === 0}
+          >
+            Сохранить историю
+          </button>
+          <input
+            type="file"
+            id="file-input"
+            style={{ display: 'none' }}
+            onChange={handleLoadResultsHistory}
+          />
+          <label htmlFor="file-input" className="calculation-results__button calculation-results__button_type_label">
+            Загрузить историю
+          </label>
         </div>
         {resultsHistory.length > 0 ? (
           <div className="calculation-results__history">

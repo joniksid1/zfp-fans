@@ -15,8 +15,8 @@
 // export const BASE_URL = baseUrl;
 
 // Временно устанвавливаю вне зависимости от переменных окружения для теста http
-// export const BASE_URL = 'http://192.168.97.110/api';
-export const BASE_URL = 'http://localhost:3000';
+export const BASE_URL = 'http://192.168.97.110/api';
+// export const BASE_URL = 'http://localhost:3000';
 
 export const fetchDataSheetOrCommercial = (historyItem, endpoint, acceptType) => {
   return fetch(`${BASE_URL}/${endpoint}`, {

@@ -2,6 +2,14 @@ function Info() {
   return (
     <section className="info">
       <div className="info__wrapper">
+      <p className="info__text">Версия программы 1.2.1</p>
+        <p className="info__text">Изменения:</p>
+        <p className="info__text">
+          Пользовательские изменения:<br />
+          - Добавлена возможность выбора опций для вентилятора ZFR 2,2-2E.<br />
+          - Регулятор скорости при подборе теперь выбран по умолчанию (можно отменить).<br />
+          - Увеличен лимит символов на ввод в название проекта и название системы.<br />
+        </p>
         <p className="info__text">Версия программы 1.2.0</p>
         <p className="info__text">Изменения:</p>
         <p className="info__text">

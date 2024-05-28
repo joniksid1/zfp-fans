@@ -71,6 +71,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  table-layout: fixed;
 }
 
 .calculation-results__table-header,
@@ -79,6 +80,7 @@
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
+  word-wrap:break-word;
 }
 
 .calculation-results__table-data:last-of-type {

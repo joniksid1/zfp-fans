@@ -24,7 +24,7 @@ function ProjectNameModal({
         id="projectName"
         className="modal__input"
         required=""
-        maxLength={20}
+        maxLength={100}
         value={projectNameValue}
         onChange={projectNameValueChange}
       />

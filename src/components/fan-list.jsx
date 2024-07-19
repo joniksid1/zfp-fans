@@ -22,6 +22,7 @@ function FanList({
   projectNameValueChange,
   isProjectNameLocked,
   setIsProjectNameLocked,
+  currentHistoryIndex,
 }) {
   const [workingFlowRate, setWorkingFlowRate] = useState(null);
   const [workingStaticPressure, setWorkingStaticPressure] = useState(null);
@@ -95,6 +96,7 @@ function FanList({
         setIsProjectNameLocked={setIsProjectNameLocked}
         workingFlowRate={workingFlowRate}
         workingStaticPressure={workingStaticPressure}
+        currentHistoryIndex={currentHistoryIndex}
       />
     </div>
   );
@@ -129,6 +131,7 @@ FanList.propTypes = {
   projectNameValueChange: PropTypes.func,
   isProjectNameLocked: PropTypes.bool,
   setIsProjectNameLocked: PropTypes.func,
+  currentHistoryIndex: PropTypes.number,
 };
 
 export default FanList;

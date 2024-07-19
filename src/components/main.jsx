@@ -39,6 +39,7 @@ function Main({
   const [commercialLoading, setCommercialLoading] = useState(false);
   const [isProjectNameLocked, setIsProjectNameLocked] = useState(false);
   const [error, setError] = useState(null);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,8 +137,20 @@ function Main({
 
   const plotRef = useRef(null);
 
-  const addResultsToHistory = (newResult) => {
-    setResultsHistory(prevHistory => [...prevHistory, newResult]);
+  const addResultsToHistory = ({ index, ...rest }) => {
+    setResultsHistory(prevHistory => {
+      const updatedHistory = [...prevHistory];
+
+      if (index !== undefined && index !== null && index >= 0 && index < updatedHistory.length) {
+        // Если индекс валиден, заменяем элемент по этому индексу
+        updatedHistory[index] = rest;
+      } else {
+        // Если индекс не указан или недействителен, добавляем новый элемент
+        updatedHistory.push(rest);
+      }
+
+      return updatedHistory;
+    });
   };
 
   // Обработка инпута изменения названия проекта
@@ -375,6 +388,7 @@ function Main({
             displayAllFanResults={displayAllFanResults}
             setDisplayAllFanResults={setDisplayAllFanResults}
             intersectionPoints={intersectionPoints}
+            currentHistoryIndex={currentHistoryIndex}
           />
         } />
         <Route path="/results" element={
@@ -388,6 +402,8 @@ function Main({
             setCommercialLoading={setCommercialLoading}
             projectNameValue={projectNameValue}
             projectNameValueChange={projectNameValueChange}
+            currentHistoryIndex={currentHistoryIndex}
+            setCurrentHistoryIndex={setCurrentHistoryIndex}
           />
         } />
       </Routes>

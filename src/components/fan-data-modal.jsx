@@ -20,6 +20,7 @@ function FanDataModal({
   setIsProjectNameLocked,
   workingFlowRate,
   workingStaticPressure,
+  currentHistoryIndex,
 }) {
   const [systemNameValue, setSystemNameValue] = useState('');
   const [displayAllSockets, setDisplayAllSockets] = useState(false);
@@ -86,6 +87,7 @@ function FanDataModal({
       const plotImageResult = await generatePlotImage();
 
       addResultsToHistory({
+        index: currentHistoryIndex,
         systemNameValue,
         fanName,
         flowRateValue,
@@ -279,6 +281,7 @@ FanDataModal.propTypes = {
   setIsProjectNameLocked: PropTypes.func,
   workingFlowRate: PropTypes.number,
   workingStaticPressure: PropTypes.number,
+  currentHistoryIndex: PropTypes.number,
 };
 
 export default FanDataModal

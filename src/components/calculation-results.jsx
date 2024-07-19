@@ -18,6 +18,7 @@ function CalculationResults({
   setCommercialLoading,
   projectNameValue,
   projectNameValueChange,
+  setCurrentHistoryIndex,
 }) {
   const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
@@ -30,7 +31,17 @@ function CalculationResults({
 
   useEffect(() => {
     setSelectedItems(new Array(resultsHistory.length).fill(false));
-  }, [resultsHistory]);
+    setCurrentHistoryIndex(null);
+  }, [resultsHistory, setCurrentHistoryIndex]);
+
+  useEffect(() => {
+    if (selectedItems.some(item => item)) {
+      const selectedIndex = selectedItems.indexOf(true);
+      setCurrentHistoryIndex(selectedIndex);
+    } else {
+      setCurrentHistoryIndex(null);
+    }
+  }, [selectedItems, setCurrentHistoryIndex]);
 
   // Открытие модального окна для изменения имени проекта
   const openProjectNameModal = () => {
@@ -54,7 +65,7 @@ function CalculationResults({
     closeModals();
   };
 
-  // Обработка нажатия клавиш Enter и Escape (подтверждение изменения название системы)
+  // Обработка нажатия клавиш Enter и ESC (подтверждение изменения название системы)
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
       handleSystemNameChange(index, newSystemName);
@@ -249,6 +260,7 @@ function CalculationResults({
 
   // Проверка наличия выбранных элементов
   const isAnyItemSelected = selectedItems.some((item) => item);
+  const isSingleItemSelected = selectedItems.filter(item => item).length === 1;
 
   // Удаление выбранных элементов
   const handleDeleteSelectedItems = () => {
@@ -407,6 +419,13 @@ function CalculationResults({
           </button>
           <button
             className="calculation-results__button"
+            disabled={!isSingleItemSelected}
+            onClick={switchToForm}
+          >
+            Пересчитать выбранную
+          </button>
+          <button
+            className="calculation-results__button"
             disabled={!isAnyItemSelected}
             onClick={openDeleteConfirmModal}
           >
@@ -515,6 +534,8 @@ CalculationResults.propTypes = {
   setCommercialLoading: PropTypes.func,
   projectNameValue: PropTypes.string,
   projectNameValueChange: PropTypes.func,
+  currentHistoryIndex: PropTypes.number,
+  setCurrentHistoryIndex: PropTypes.func,
 };
 
 export default CalculationResults;

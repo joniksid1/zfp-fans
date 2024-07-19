@@ -1,6 +1,7 @@
 .calculation-results {
   display: flex;
   flex-direction: column;
+  align-items: center;
   min-height: 500px;
   background: #fff;
   border-radius: 5px;
@@ -11,6 +12,8 @@
 .calculation-results__wrapper {
   display: flex;
   justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 30px;
 }
 
 .calculation-results__wrapper_type_project {
@@ -67,6 +70,10 @@
   cursor: not-allowed;
 }
 
+.calculation-results__input {
+  max-width: 90%;
+}
+
 .calculation-results__table {
   width: 100%;
   border-collapse: collapse;
@@ -97,6 +104,9 @@
 }
 
 .calculation-results__text {
+  max-width: 90%;
+  overflow-wrap: break-word;
+  word-break: break-word;
   margin: 0;
   padding: 20px 0;
   font-size: 18px;

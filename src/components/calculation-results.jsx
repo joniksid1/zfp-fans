@@ -21,41 +21,52 @@ function CalculationResults({
 }) {
   const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null); // Индекс редактируемого элемента
+  const [newSystemName, setNewSystemName] = useState(''); // Новое название системы
   const [error, setError] = useState(null);
   const [selectedItems, setSelectedItems] = useState(new Array(resultsHistory.length).fill(false));
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   useEffect(() => {
-    // Обновляем selectedItems каждый раз, когда изменяется resultsHistory
-    // Нужно для правильной простановки значений в checkbox
     setSelectedItems(new Array(resultsHistory.length).fill(false));
   }, [resultsHistory]);
 
-  const openProjecNameModal = () => {
+  // Открытие модального окна для изменения имени проекта
+  const openProjectNameModal = () => {
     setIsProjectNameModalOpen(true);
   };
 
+  // Открытие модального окна подтверждения удаления
   const openDeleteConfirmModal = () => {
     setIsDeleteConfirmModalOpen(true);
   };
 
+  // Закрытие модальных окон
   const closeModals = () => {
     setIsProjectNameModalOpen(false);
     setIsDeleteConfirmModalOpen(false);
   };
 
-// Функция для подтверждения удаления выбранных элементов
+  // Подтверждение удаления выбранных элементов
   const handleConfirmDelete = () => {
     handleDeleteSelectedItems();
     closeModals();
   };
 
-  // Функция для сохранения resultsHistory в формате JSON
+  // Обработка нажатия клавиш Enter и Escape (подтверждение изменения название системы)
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      handleSystemNameChange(index, newSystemName);
+      setEditingIndex(null);
+    }
+  };
+
+  // Сохранение истории результатов в файл JSON
   const handleSaveResultsHistory = () => {
     const data = {
-      projectName: projectNameValue,  // Добавляем название проекта
-      resultsHistory: resultsHistory  // История результатов
+      projectName: projectNameValue,
+      resultsHistory: resultsHistory
     };
     const dataStr = JSON.stringify(data);
     const fileURL = URL.createObjectURL(new Blob([dataStr], { type: 'application/json' }));
@@ -67,7 +78,7 @@ function CalculationResults({
     URL.revokeObjectURL(fileURL);
   };
 
-  // Функция для загрузки resultsHistory из файла JSON
+  // Загрузка истории из файла JSON
   const handleLoadResultsHistory = async (event) => {
     const file = event.target.files[0];
     if (file && file.type === "application/json") {
@@ -75,14 +86,13 @@ function CalculationResults({
         const text = await file.text();
         const data = JSON.parse(text);
         if (data.projectName && data.resultsHistory) {
-          // Создаём искусственное событие с целью использовать существующую функцию валидации
           const fakeEvent = {
             target: {
               value: data.projectName
             }
           };
-          projectNameValueChange(fakeEvent); // Передаем созданное "событие" в функцию
-          setResultsHistory(data.resultsHistory); // Обновляем историю результатов
+          projectNameValueChange(fakeEvent);
+          setResultsHistory(data.resultsHistory);
         } else {
           setError('Формат файла некорректен.');
         }
@@ -94,6 +104,7 @@ function CalculationResults({
     }
   };
 
+  // Получение названия компонента по ключу
   const getComponentName = (option) => {
     const componentNames = {
       selectFlatRoofSocket: 'Монтажный стакан для плоской кровли',
@@ -108,13 +119,13 @@ function CalculationResults({
     return componentNames[option] || option;
   };
 
+  // Загрузка технических данных для выбранных систем
   const downloadDataSheet = async () => {
     try {
       setDataSheetLoading(true);
       const selectedHistoryItems = resultsHistory.filter((historyItem, index) => selectedItems[index]);
 
       if (selectedHistoryItems.length === 1) {
-        // Если выбран только один элемент, скачиваем его без архивации
         const historyItem = selectedHistoryItems[0];
         historyItem.projectNameValue = projectNameValue;
         const response = await getDataSheet(historyItem);
@@ -122,11 +133,11 @@ function CalculationResults({
 
         if (contentType && contentType.includes('application/pdf')) {
           const blob = await response.blob();
-          const uniqueId = uuid(); // Генерируем уникальный идентификатор
+          const uniqueId = uuid();
           const fileURL = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = fileURL;
-          a.download = `${historyItem.systemNameValue}_${uniqueId}.pdf`; // Добавляем уникальный идентификатор к имени файла
+          a.download = `${historyItem.systemNameValue}_${uniqueId}.pdf`;
           document.body.appendChild(a);
           a.click();
           URL.revokeObjectURL(fileURL);
@@ -135,7 +146,6 @@ function CalculationResults({
           console.log('Текстовые данные', text);
         }
       } else if (selectedHistoryItems.length > 1) {
-        // Если выбрано более одного элемента, создаем архив
         const zip = new JSZip();
 
         await Promise.all(selectedHistoryItems.map(async (historyItem) => {
@@ -146,9 +156,9 @@ function CalculationResults({
 
             if (contentType && contentType.includes('application/pdf')) {
               const blob = await response.blob();
-              const uniqueId = uuid(); // Генерируем уникальный идентификатор
-              const fileName = `${historyItem.systemNameValue}_${uniqueId}.pdf`; // Добавляем уникальный идентификатор к имени файла
-              zip.file(fileName, blob); // Добавляем файл в архив
+              const uniqueId = uuid();
+              const fileName = `${historyItem.systemNameValue}_${uniqueId}.pdf`;
+              zip.file(fileName, blob);
             } else {
               const text = await response.text();
               console.log('Текстовые данные', text);
@@ -158,12 +168,11 @@ function CalculationResults({
           }
         }));
 
-        // Генерируем архив и скачиваем его
         zip.generateAsync({ type: 'blob' }).then((content) => {
           const fileURL = URL.createObjectURL(content);
           const a = document.createElement('a');
           a.href = fileURL;
-          a.download = 'technical_sheets.zip'; // Имя архива
+          a.download = 'technical_sheets.zip';
           document.body.appendChild(a);
           a.click();
           URL.revokeObjectURL(fileURL);
@@ -179,6 +188,7 @@ function CalculationResults({
     }
   };
 
+  // Загрузка коммерческого предложения для выбранных систем
   const downloadCommercial = async () => {
     try {
       setCommercialLoading(true);
@@ -212,6 +222,7 @@ function CalculationResults({
     }
   };
 
+  // Обработка изменения состояния чекбокса
   const handleCheckboxChange = (index) => {
     setSelectedItems((prevState) => {
       const newSelectedItems = [...prevState];
@@ -220,6 +231,7 @@ function CalculationResults({
     });
   };
 
+  // Выбор всех элементов
   const handleSelectAll = () => {
     const allItemsSelected = selectedItems.every((item) => item);
     const newSelectedItems = [];
@@ -235,22 +247,26 @@ function CalculationResults({
     setSelectedItems(newSelectedItems);
   };
 
+  // Проверка наличия выбранных элементов
   const isAnyItemSelected = selectedItems.some((item) => item);
 
+  // Удаление выбранных элементов
   const handleDeleteSelectedItems = () => {
-    const newResultsHistory = resultsHistory.filter((_, index) => !selectedItems[index]);
-    setResultsHistory(newResultsHistory);
-    setSelectedItems(new Array(newResultsHistory.length).fill(false));
+    const updatedResultsHistory = resultsHistory.filter((_, index) => !selectedItems[index]);
+    setResultsHistory(updatedResultsHistory);
+    setSelectedItems(new Array(updatedResultsHistory.length).fill(false));
   };
 
+  // Начало перетаскивания
   const handleDragStart = (index) => {
     setDraggedIndex(index);
   };
 
+  // Обработка перетаскивания
   const handleDragOver = (index) => {
-    if (draggedIndex !== null && draggedIndex !== index) {
-      const draggedItem = resultsHistory[draggedIndex];
+    if (draggedIndex !== null) {
       const updatedResultsHistory = [...resultsHistory];
+      const draggedItem = updatedResultsHistory[draggedIndex];
       updatedResultsHistory.splice(draggedIndex, 1);
       updatedResultsHistory.splice(index, 0, draggedItem);
       setResultsHistory(updatedResultsHistory);
@@ -258,20 +274,20 @@ function CalculationResults({
     }
   };
 
-  // Функция для обновления состояния при наведении курсора
+  // Обработка входа перетаскивания
   const handleDragEnter = (index) => {
     if (draggedIndex !== null) {
       setHoveredIndex(index);
     }
   };
 
-  // Функция для обновления состояния при окончании перетаскивания
+  // Завершение перетаскивания
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setHoveredIndex(null);
   };
 
-  // Функция для изменения стилей в зависимости от состояний draggedIndex и hoveredIndex
+  // Определение класса строки таблицы
   const getRowClassName = (index) => {
     if (index === draggedIndex) {
       return 'calculation-results__table-row calculation-results__table-row_dragged';
@@ -282,7 +298,32 @@ function CalculationResults({
     return 'calculation-results__table-row';
   };
 
-  // Реорганизация элементов при взадимодействии drag and drop
+  // Обработка изменения названия системы
+  const handleSystemNameChange = (index, newName) => {
+    const updatedResults = [...resultsHistory];
+    updatedResults[index].systemNameValue = newName;
+    setResultsHistory(updatedResults);
+  };
+
+  // Копирование выбранной системы
+  const handleCopySystem = () => {
+    const selectedIndex = selectedItems.indexOf(true);
+    if (selectedIndex !== -1) {
+      const itemToCopy = resultsHistory[selectedIndex];
+      const newItem = { ...itemToCopy, systemNameValue: `${itemToCopy.systemNameValue} (копия)` };
+      const updatedResults = [...resultsHistory];
+      updatedResults.splice(selectedIndex + 1, 0, newItem);
+      setResultsHistory(updatedResults);
+      setSelectedItems(new Array(updatedResults.length).fill(false));
+      setSelectedItems((prev) => {
+        const newSelectedItems = [...prev];
+        newSelectedItems[selectedIndex + 1] = true;
+        return newSelectedItems;
+      });
+    }
+  };
+
+  // Рендеринг строки таблицы
   const rearrangeResultsHistory = (historyItem, index) => {
     return (
       <tr
@@ -303,7 +344,29 @@ function CalculationResults({
             onChange={() => handleCheckboxChange(index)}
           />
         </td>
-        <td className="calculation-results__table-data">{historyItem.systemNameValue}</td>
+        <td className="calculation-results__table-data">
+          {editingIndex === index ? (
+            <input
+              className="calculation-results__input"
+              type="text"
+              value={newSystemName}
+              onChange={(e) => setNewSystemName(e.target.value)}
+              onBlur={() => {
+                handleSystemNameChange(index, newSystemName);
+                setEditingIndex(null);
+              }}
+              onKeyDown={(e) => handleKeyDown(e, index)} // Обработка нажатия клавиши Enter
+              autoFocus
+            />
+          ) : (
+            <span onClick={() => {
+              setNewSystemName(historyItem.systemNameValue);
+              setEditingIndex(index);
+            }}>
+              {historyItem.systemNameValue || 'Нажмите для редактирования'}
+            </span>
+          )}
+        </td>
         <td className="calculation-results__table-data">{historyItem.fanName}</td>
         <td className="calculation-results__table-data">{historyItem.flowRateValue}</td>
         <td className="calculation-results__table-data">{historyItem.staticPressureValue}</td>
@@ -332,11 +395,16 @@ function CalculationResults({
           }
           <button
             className='calculation-results__button calculation-results__button_type_project'
-            onClick={openProjecNameModal}
+            onClick={openProjectNameModal}
           >
           </button>
         </div>
         <div className="calculation-results__wrapper">
+          <button className="calculation-results__button" onClick={switchToForm}>
+            Вернуться
+            <br />
+            к расчёту
+          </button>
           <button
             className="calculation-results__button"
             disabled={!isAnyItemSelected}
@@ -344,10 +412,12 @@ function CalculationResults({
           >
             Удалить выбранные
           </button>
-          <button className="calculation-results__button" onClick={switchToForm}>
-            Вернуться
-            <br />
-            к расчёту
+          <button
+            className="calculation-results__button"
+            disabled={!isAnyItemSelected}
+            onClick={handleCopySystem}
+          >
+            Копировать выбранные
           </button>
           <button
             className="calculation-results__button"
@@ -408,7 +478,7 @@ function CalculationResults({
         ) : (
           <p className="calculation-results__text calculation-results__text_type_bottom">Рассчитанных вентиляторов нет, начните расчёт</p>
         )}
-      </div >
+      </div>
       <ProjectNameModal
         isProjectNameModalOpen={isProjectNameModalOpen}
         closeModals={closeModals}

@@ -104,6 +104,7 @@ function FanDataModal({
           selectRegulator,
         },
         plotImage: plotImageResult,
+        quantity: '1',
       });
 
       handleCloseModal();

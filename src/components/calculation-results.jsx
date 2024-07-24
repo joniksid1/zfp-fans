@@ -7,6 +7,7 @@ import Preloader from './preloader';
 import ErrorModal from './error-modal';
 import JSZip from 'jszip';
 import { v4 as uuid } from 'uuid';
+import { QUANTITY_INPUT_REGEXP } from '../utils/constants';
 
 function CalculationResults({
   resultsHistory,
@@ -22,8 +23,10 @@ function CalculationResults({
 }) {
   const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null); // Индекс редактируемого элемента
-  const [newSystemName, setNewSystemName] = useState(''); // Новое название системы
+  const [editingSystemNameIndex, setEditingSystemNameIndex] = useState(null);
+  const [editingQuantityIndex, setEditingQuantityIndex] = useState(null);
+  const [newSystemName, setNewSystemName] = useState('');
+  const [newQuantity, setNewQuantity] = useState(1);
   const [error, setError] = useState(null);
   const [selectedItems, setSelectedItems] = useState(new Array(resultsHistory.length).fill(false));
   const [draggedIndex, setDraggedIndex] = useState(null);
@@ -42,6 +45,27 @@ function CalculationResults({
       setCurrentHistoryIndex(null);
     }
   }, [selectedItems, setCurrentHistoryIndex]);
+
+  // Функция для проверки значения (количество)
+  const validateQuantity = (value) => {
+    return QUANTITY_INPUT_REGEXP.test(value);
+  };
+
+  const handleQuantityInputChange = (e) => {
+    const value = e.target.value;
+
+    if (validateQuantity(value) || value === '') {
+      setNewQuantity(value);
+    }
+  }
+
+  // Обработчик сохранения значения при потере фокуса в количестве
+  const handleQuantityBlur = (index) => {
+    // Если значение пустое, устанавливаем "1"
+    const finalQuantity = newQuantity.trim() === '' ? '1' : newQuantity;
+    handleQuantityChange(index, finalQuantity);
+    setEditingQuantityIndex(null);
+  };
 
   // Открытие модального окна для изменения имени проекта
   const openProjectNameModal = () => {
@@ -66,10 +90,19 @@ function CalculationResults({
   };
 
   // Обработка нажатия клавиш Enter и ESC (подтверждение изменения название системы)
-  const handleKeyDown = (e, index) => {
+  const handleSystemNameKeyDown = (e, index) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
       handleSystemNameChange(index, newSystemName);
-      setEditingIndex(null);
+      setEditingSystemNameIndex(null);
+    }
+  };
+
+  // Обработка нажатия клавиш Enter и ESC (подтверждение изменения название системы)
+  const handleQuantityKeyDown = (e, index) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      handleQuantityChange(index, newQuantity);
+      setEditingQuantityIndex(null);
+      handleQuantityBlur(index);
     }
   };
 
@@ -97,13 +130,18 @@ function CalculationResults({
         const text = await file.text();
         const data = JSON.parse(text);
         if (data.projectName && data.resultsHistory) {
+          // Обрабатываем элементы истории и устанавливаем значение по умолчанию для quantity
+          const updatedResultsHistory = data.resultsHistory.map(item => ({
+            ...item,
+            quantity: item.quantity !== undefined ? item.quantity : '1' // Устанавливаем "1", если quantity отсутствует
+          }));
           const fakeEvent = {
             target: {
               value: data.projectName
             }
           };
           projectNameValueChange(fakeEvent);
-          setResultsHistory(data.resultsHistory);
+          setResultsHistory(updatedResultsHistory);
         } else {
           setError('Формат файла некорректен.');
         }
@@ -335,6 +373,14 @@ function CalculationResults({
     }
   };
 
+  // Изменение количества
+
+  const handleQuantityChange = (index, newQuantity) => {
+    const updatedResults = [...resultsHistory];
+    updatedResults[index].quantity = newQuantity;
+    setResultsHistory(updatedResults);
+  };
+
   // Рендеринг строки таблицы
   const rearrangeResultsHistory = (historyItem, index) => {
     return (
@@ -357,7 +403,7 @@ function CalculationResults({
           />
         </td>
         <td className="calculation-results__table-data">
-          {editingIndex === index ? (
+          {editingSystemNameIndex === index ? (
             <input
               className="calculation-results__input"
               type="text"
@@ -365,15 +411,15 @@ function CalculationResults({
               onChange={(e) => setNewSystemName(e.target.value)}
               onBlur={() => {
                 handleSystemNameChange(index, newSystemName);
-                setEditingIndex(null);
+                setEditingSystemNameIndex(null);
               }}
-              onKeyDown={(e) => handleKeyDown(e, index)} // Обработка нажатия клавиши Enter
+              onKeyDown={(e) => handleSystemNameKeyDown(e, index)} // Обработка нажатия клавиши Enter
               autoFocus
             />
           ) : (
             <span onClick={() => {
               setNewSystemName(historyItem.systemNameValue);
-              setEditingIndex(index);
+              setEditingSystemNameIndex(index);
             }}>
               {historyItem.systemNameValue || 'Нажмите для редактирования'}
             </span>
@@ -382,6 +428,26 @@ function CalculationResults({
         <td className="calculation-results__table-data">{historyItem.fanName}</td>
         <td className="calculation-results__table-data">{historyItem.flowRateValue}</td>
         <td className="calculation-results__table-data">{historyItem.staticPressureValue}</td>
+        <td className="calculation-results__table-data">
+          {editingQuantityIndex === index ? (
+            <input
+              className="calculation-results__input"
+              type="text"
+              value={newQuantity}
+              onChange={handleQuantityInputChange}
+              onKeyDown={(e) => handleQuantityKeyDown(e, index)} // Обработка нажатия клавиши Enter
+              onBlur={() => handleQuantityBlur(index)}
+              autoFocus
+            />
+          ) : (
+            <span onClick={() => {
+              setEditingQuantityIndex(index);
+              setNewQuantity(historyItem.quantity || '1');
+            }}>
+              {historyItem.quantity || '1'}
+            </span>
+          )}
+        </td>
         <td className="calculation-results__table-data">
           <ul className="calculation-results__options-list">
             {Object.entries(historyItem.selectedOptions).map(([option, value]) => (
@@ -486,6 +552,7 @@ function CalculationResults({
                   <th className="calculation-results__table-header">Вентилятор</th>
                   <th className="calculation-results__table-header">Поток воздуха, м³/ч</th>
                   <th className="calculation-results__table-header">Давление сети, Па</th>
+                  <th className="calculation-results__table-header">Количество</th>
                   <th className="calculation-results__table-header">Подобранные опции</th>
                 </tr>
               </thead>

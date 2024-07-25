@@ -499,10 +499,10 @@ function CalculationResults({
           </button>
           <button
             className="calculation-results__button"
-            disabled={!isAnyItemSelected}
+            disabled={!isSingleItemSelected}
             onClick={handleCopySystem}
           >
-            Копировать выбранные
+            Копировать выбранную
           </button>
           <button
             className="calculation-results__button"

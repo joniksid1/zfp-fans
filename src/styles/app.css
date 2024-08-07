@@ -30,7 +30,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background-color: rgba(220,220,220, .3);
   color: #504f4f;
   position: relative;
-  min-width: 320px;
+  min-width: 1280px;
   width: 100%;
   display: flex;
   justify-content: center;

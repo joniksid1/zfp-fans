@@ -477,7 +477,7 @@ function CalculationResults({
           >
           </button>
         </div>
-        <div className="calculation-results__wrapper">
+        <div className="calculation-results__wrapper calculation-results__wrapper_type_controls">
           <button className="calculation-results__button" onClick={switchToForm}>
             Вернуться
             <br />
@@ -545,7 +545,7 @@ function CalculationResults({
         {resultsHistory.length > 0 ? (
           <div className="calculation-results__history">
             <table className="calculation-results__table">
-              <thead>
+              <thead className="calculation-results__table-top-row">
                 <tr>
                   <th className="calculation-results__table-header">Выбрать</th>
                   <th className="calculation-results__table-header">Система</th>

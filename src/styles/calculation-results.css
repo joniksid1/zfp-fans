@@ -14,11 +14,28 @@
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 30px;
+  position: sticky;
+  background-color: #fff;
+  width: 100%;
+  z-index: 1;
 }
 
 .calculation-results__wrapper_type_project {
   justify-content: center;
   align-items: center;
+  top: 0;
+}
+
+.calculation-results__wrapper_type_controls {
+  top: 60px;
+  opacity: 1;
+  padding-bottom: 20px;
+}
+
+.calculation-results__table-top-row {
+  position: sticky;
+  top: 150px;
+  z-index: 1;
 }
 
 .calculation-results__header {

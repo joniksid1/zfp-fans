@@ -45,7 +45,8 @@ function FanList({
     <div className="fan-list">
       <ul className="fan-list__items">
         {displayAllFanResults ?
-          allFanResults.map((result, index) => (
+          allFanResults
+          .map((result, index) => (
             <li
               key={index}
               className={`fan-list__item ${selectedFan === result.fanName ? 'selected' : ''}`}
@@ -61,7 +62,8 @@ function FanList({
             </li>
           ))
           :
-          correctFanResults.map((result, index) => (
+          correctFanResults
+          .map((result, index) => (
             <li
               key={index}
               className={`fan-list__item ${selectedFan === result.fanName ? 'selected' : ''}`}

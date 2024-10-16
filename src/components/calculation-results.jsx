@@ -6,7 +6,6 @@ import ConfirmModal from './confirm-modal';
 import Preloader from './preloader';
 import ErrorModal from './error-modal';
 import JSZip from 'jszip';
-import { v4 as uuid } from 'uuid';
 import { QUANTITY_INPUT_REGEXP } from '../utils/constants';
 
 function CalculationResults({
@@ -174,6 +173,22 @@ function CalculationResults({
       setDataSheetLoading(true);
       const selectedHistoryItems = resultsHistory.filter((historyItem, index) => selectedItems[index]);
 
+      // Функция для добавления индекса к имени файла при совпадении
+      const getUniqueFileName = (fileName, existingFileNames) => {
+        let baseName = fileName.replace(/\.pdf$/, ''); // Убираем расширение для дальнейших манипуляций
+        let extension = '.pdf';
+        let counter = 1;
+        let uniqueFileName = fileName;
+
+        // Пока файл с таким именем уже существует, добавляем индекс
+        while (existingFileNames.includes(uniqueFileName)) {
+          uniqueFileName = `${baseName} (${counter})${extension}`;
+          counter++;
+        }
+
+        return uniqueFileName;
+      };
+
       if (selectedHistoryItems.length === 1) {
         const historyItem = selectedHistoryItems[0];
         historyItem.projectNameValue = projectNameValue;
@@ -182,11 +197,10 @@ function CalculationResults({
 
         if (contentType && contentType.includes('application/pdf')) {
           const blob = await response.blob();
-          const uniqueId = uuid();
           const fileURL = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = fileURL;
-          a.download = `${historyItem.systemNameValue}_${uniqueId}.pdf`;
+          a.download = `${historyItem.systemNameValue}.pdf`;
           document.body.appendChild(a);
           a.click();
           URL.revokeObjectURL(fileURL);
@@ -196,6 +210,7 @@ function CalculationResults({
         }
       } else if (selectedHistoryItems.length > 1) {
         const zip = new JSZip();
+        const existingFileNames = [];
 
         await Promise.all(selectedHistoryItems.map(async (historyItem) => {
           try {
@@ -205,8 +220,12 @@ function CalculationResults({
 
             if (contentType && contentType.includes('application/pdf')) {
               const blob = await response.blob();
-              const uniqueId = uuid();
-              const fileName = `${historyItem.systemNameValue}_${uniqueId}.pdf`;
+              let fileName = `${historyItem.systemNameValue}.pdf`;
+
+              // Проверка на уникальность имени файла
+              fileName = getUniqueFileName(fileName, existingFileNames);
+              existingFileNames.push(fileName); // Добавляем новое имя в список существующих
+
               zip.file(fileName, blob);
             } else {
               const text = await response.text();
@@ -478,7 +497,12 @@ function CalculationResults({
           </button>
         </div>
         <div className="calculation-results__wrapper calculation-results__wrapper_type_controls">
-          <button className="calculation-results__button" onClick={switchToForm}>
+          <button
+            className='calculation-results__button'
+            onClick={switchToForm}
+            disabled={isAnyItemSelected}
+            title={isAnyItemSelected ? "Невозможно вернуться к расчёту, когда выбрана хотя бы одна система" : ""}
+          >
             Вернуться
             <br />
             к расчёту

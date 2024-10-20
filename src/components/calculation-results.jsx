@@ -19,6 +19,8 @@ function CalculationResults({
   projectNameValue,
   projectNameValueChange,
   setCurrentHistoryIndex,
+  flowRateValueChange,
+  staticPressureValueChange,
 }) {
   const [isProjectNameModalOpen, setIsProjectNameModalOpen] = useState(false);
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
@@ -44,6 +46,24 @@ function CalculationResults({
       setCurrentHistoryIndex(null);
     }
   }, [selectedItems, setCurrentHistoryIndex]);
+
+  useEffect(() => {
+    if (selectedItems.some(item => item)) {
+      const selectedIndex = selectedItems.indexOf(true);
+      setCurrentHistoryIndex(selectedIndex);
+
+      // Извлекаем flowRate и staticPressure выбранного элемента
+      const selectedSystem = resultsHistory[selectedIndex];
+      if (selectedSystem) {
+        flowRateValueChange({ target: { value: selectedSystem.flowRateValue.toString() } });
+        staticPressureValueChange({ target: { value: selectedSystem.staticPressureValue.toString() } });
+      }
+    } else {
+      setCurrentHistoryIndex(null);
+      flowRateValueChange({ target: { value: '' } });
+      staticPressureValueChange({ target: { value: '' } });
+    }
+  }, [selectedItems, setCurrentHistoryIndex, flowRateValueChange, staticPressureValueChange, resultsHistory]);
 
   // Функция для проверки значения (количество)
   const validateQuantity = (value) => {
@@ -627,6 +647,8 @@ CalculationResults.propTypes = {
   projectNameValueChange: PropTypes.func,
   currentHistoryIndex: PropTypes.number,
   setCurrentHistoryIndex: PropTypes.func,
+  flowRateValueChange: PropTypes.func,
+  staticPressureValueChange: PropTypes.func,
 };
 
 export default CalculationResults;

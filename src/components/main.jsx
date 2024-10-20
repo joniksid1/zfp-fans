@@ -404,6 +404,8 @@ function Main({
             projectNameValueChange={projectNameValueChange}
             currentHistoryIndex={currentHistoryIndex}
             setCurrentHistoryIndex={setCurrentHistoryIndex}
+            flowRateValueChange={flowRateValueChange}
+            staticPressureValueChange={staticPressureValueChange}
           />
         } />
       </Routes>

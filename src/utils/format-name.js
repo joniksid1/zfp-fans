@@ -1,6 +1,6 @@
 function formatFanName(rawName) {
   const fanNameMappings = {
-    'ZFR 1,9-2E': 'zfr_1_9_2e',
+    // 'ZFR 1,9-2E': 'zfr_1_9_2e',
     'ZFR 2,2-2E': 'zfr_2_2_2e',
     // 'ZFR 2,25-2E': 'zfr_2_25_2e',
     'ZFR 2,5-2E': 'zfr_2_5_2e',
@@ -16,7 +16,6 @@ function formatFanName(rawName) {
     'ZFR 5-4D': 'zfr_5_4d',
     'ZFR 5,6-4D': 'zfr_5_6_4d',
     'ZFR 6,3-4D': 'zfr_6_3_4d',
-    // Добавьте другие соответствия по мере необходимости
   };
 
   return fanNameMappings[rawName] || rawName;
